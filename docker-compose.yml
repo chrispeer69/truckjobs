@@ -7,10 +7,10 @@ services:
     environment:
       - DB_PATH=/app/db_data/db.sqlite3
     volumes:
-
       - static_files:/app/staticfiles
       - media_files:/app/media
       - db_data:/app/db_data
+      - .env:/app/.env
 
     expose:
       - "8000"
