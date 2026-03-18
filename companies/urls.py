@@ -8,4 +8,5 @@ urlpatterns = [
     path('post/', views.post_job, name='post_job'),
     path('jobs/', views.company_jobs, name='company_jobs'),
     path('application/<int:app_id>/stage/', views.update_stage, name='update_stage'),
+    path('driver/<int:driver_id>/documents/', views.view_driver_documents, name='view_driver_documents'),
 ]

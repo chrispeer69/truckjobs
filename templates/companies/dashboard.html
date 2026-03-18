@@ -141,8 +141,8 @@
         <span class="badge badge-amber mt-4" style="align-self:flex-end;">⏳ Access Pending</span>
         {% elif driver.access_request.status == 'approved' %}
         <span class="badge badge-green mt-4" style="align-self:flex-end;">✓ Access Granted</span>
-        <!-- In a real app we'd link to a view_documents page. -->
-        <a href="#" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">View Documents</a>
+        <a href="{% url 'companies:view_driver_documents' driver.id %}" class="btn btn-ghost btn-sm"
+          style="font-size:0.75rem;">View Documents</a>
         {% else %}
         <span class="badge badge-red mt-4" style="align-self:flex-end;">✗ Access Denied</span>
         {% endif %}

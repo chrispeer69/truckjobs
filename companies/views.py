@@ -162,3 +162,32 @@ def update_stage(request, app_id):
             messages.success(request, f'Moved {application.driver.user.get_full_name()} to {application.get_stage_display()}.')
 
     return redirect('companies:dashboard')
+
+
+@login_required
+def view_driver_documents(request, driver_id):
+    if request.user.role != 'company':
+        return redirect('/')
+
+    profile = request.user.company_profile
+    target_driver = get_object_or_404(DriverProfile, pk=driver_id)
+
+    # Check if access is granted
+    access_req = CredentialAccessRequest.objects.filter(
+        dispatcher=profile,
+        driver=target_driver,
+        status='approved'
+    ).first()
+
+    if not access_req:
+        messages.error(request, 'You do not have access to view this driver\'s documents.')
+        return redirect('companies:dashboard')
+
+    credentials = target_driver.credentials.exclude(status='missing')
+    documents = target_driver.documents.all()
+
+    return render(request, 'companies/driver_documents.html', {
+        'target_driver': target_driver,
+        'credentials': credentials,
+        'documents': documents,
+    })

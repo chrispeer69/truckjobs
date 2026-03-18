@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{{ target_driver.user.get_full_name }} — Credentials{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+  <div class="container" style="max-width:800px;">
+    <div class="d-flex align-center justify-between mb-24">
+      <div>
+        <a href="{% url 'companies:dashboard' %}" class="btn btn-ghost btn-sm">← Back to Dashboard</a>
+      </div>
+    </div>
+    <div class="card mb-24">
+      <div class="d-flex align-center gap-16 mb-24">
+        <div class="avatar avatar-lg avatar-orange">{{ target_driver.initials }}</div>
+        <div>
+          <h2 style="margin:0;">{{ target_driver.user.get_full_name }}</h2>
+          <div class="text-muted">{{ target_driver.get_cdl_class_display }} · {{ target_driver.city }}, {{
+            target_driver.state }}</div>
+        </div>
+      </div>
+
+      <h3 class="mb-16">Verified Credentials</h3>
+      <div class="credential-grid mb-32">
+        {% for cred in credentials %}
+        <div class="card credential-card" style="padding:16px;">
+          <h5 style="margin:0 0 8px 0;">{{ cred.get_credential_type_display }}</h5>
+          {% if cred.status == 'verified' %}
+          <span class="badge badge-green">✓ Verified</span>
+          {% elif cred.status == 'pending' %}
+          <span class="badge badge-amber">⏳ Pending Review</span>
+          {% elif cred.status == 'expired' %}
+          <span class="badge badge-red">✗ Expired</span>
+          {% else %}
+          <span class="badge badge-gray">{{ cred.get_status_display }}</span>
+          {% endif %}
+          {% if cred.expiry_date %}
+          <div class="text-xs text-muted mt-8">Expires: {{ cred.expiry_date|date:"M d, Y" }}</div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-muted text-sm">No standard credentials on file.</p>
+        {% endfor %}
+      </div>
+
+      <h3 class="mb-16">Uploaded Documents</h3>
+      {% if documents %}
+      <ul style="list-style:none; padding:0;">
+        {% for doc in documents %}
+        <li
+          style="padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div class="fw-600">📄 {{ doc.name }}</div>
+            <div class="text-xs text-muted">Uploaded: {{ doc.uploaded_at|date:"M d, Y" }}</div>
+          </div>
+          <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm">View File</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="text-center p-24" style="background:var(--surface2); border-radius:8px;">
+        <p class="text-muted">No documents have been uploaded by this driver yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
