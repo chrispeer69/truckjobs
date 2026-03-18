@@ -72,11 +72,11 @@
           <div class="form-group">
             <label class="form-label">Availability</label>
             <select name="availability" class="form-select">
-              <option value="actively_hunting" {% if profile.availability=='actively_hunting' %}selected{% endif %}>
+              <option value="actively_hunting" {% if profile.availability == 'actively_hunting' %}selected{% endif %}>
                 Actively Hunting</option>
-              <option value="employed_open" {% if profile.availability=='employed_open' %}selected{% endif %}>Employed
+              <option value="employed_open" {% if profile.availability == 'employed_open' %}selected{% endif %}>Employed
                 but Open</option>
-              <option value="not_looking" {% if profile.availability=='not_looking' %}selected{% endif %}>Not Looking
+              <option value="not_looking" {% if profile.availability == 'not_looking' %}selected{% endif %}>Not Looking
               </option>
             </select>
           </div>
@@ -118,9 +118,9 @@
           <div class="form-group">
             <label class="form-label">CDL Class</label>
             <select name="cdl_class" class="form-select">
-              <option value="cdl_a" {% if profile.cdl_class=='cdl_a' %}selected{% endif %}>CDL-A</option>
-              <option value="cdl_b" {% if profile.cdl_class=='cdl_b' %}selected{% endif %}>CDL-B</option>
-              <option value="no_cdl" {% if profile.cdl_class=='no_cdl' %}selected{% endif %}>No CDL</option>
+              <option value="cdl_a" {% if profile.cdl_class == 'cdl_a' %}selected{% endif %}>CDL-A</option>
+              <option value="cdl_b" {% if profile.cdl_class == 'cdl_b' %}selected{% endif %}>CDL-B</option>
+              <option value="no_cdl" {% if profile.cdl_class == 'no_cdl' %}selected{% endif %}>No CDL</option>
             </select>
           </div>
           <div class="form-group">
@@ -137,10 +137,10 @@
           <div class="form-group">
             <label class="form-label">Preferred Shift</label>
             <select name="preferred_shift" class="form-select">
-              <option value="day" {% if profile.preferred_shift=='day' %}selected{% endif %}>Day Shift</option>
-              <option value="night" {% if profile.preferred_shift=='night' %}selected{% endif %}>Night Shift</option>
-              <option value="rotating" {% if profile.preferred_shift=='rotating' %}selected{% endif %}>Rotating</option>
-              <option value="flexible" {% if profile.preferred_shift=='flexible' %}selected{% endif %}>Flexible</option>
+              <option value="day" {% if profile.preferred_shift == 'day' %}selected{% endif %}>Day Shift</option>
+              <option value="night" {% if profile.preferred_shift == 'night' %}selected{% endif %}>Night Shift</option>
+              <option value="rotating" {% if profile.preferred_shift == 'rotating' %}selected{% endif %}>Rotating</option>
+              <option value="flexible" {% if profile.preferred_shift == 'flexible' %}selected{% endif %}>Flexible</option>
             </select>
           </div>
           <div class="form-group">
@@ -153,7 +153,7 @@
           <select name="city_pool" class="form-select">
             <option value="">Select a City Pool</option>
             {% for pool in city_pools %}
-            <option value="{{ pool.id }}" {% if profile.city_pool_id==pool.id %}selected{% endif %}>
+            <option value="{{ pool.id }}" {% if profile.city_pool_id == pool.id %}selected{% endif %}>
               {{ pool.name }}, {{ pool.state }}
             </option>
             {% endfor %}
