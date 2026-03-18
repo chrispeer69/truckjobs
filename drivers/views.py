@@ -24,7 +24,12 @@ def driver_profile(request):
 
         if action == 'update_profile':
             profile.cdl_class = request.POST.get('cdl_class', profile.cdl_class)
-            profile.years_experience = int(request.POST.get('years_experience', profile.years_experience))
+            
+            try:
+                profile.years_experience = int(request.POST.get('years_experience', 0) or 0)
+            except ValueError:
+                profile.years_experience = 0
+                
             profile.specialties = request.POST.get('specialties', profile.specialties)
             profile.preferred_shift = request.POST.get('preferred_shift', profile.preferred_shift)
             profile.willing_relocate = request.POST.get('willing_relocate') == 'on'
@@ -110,6 +115,8 @@ def driver_profile(request):
                     cred.expiry_date = expiry
                 cred.save()
                 messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
+            else:
+                messages.warning(request, 'No file selected for upload.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
     # Build context
