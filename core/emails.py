@@ -58,3 +58,5 @@ def send_hire_mail(dispatcher, driver):
         [driver.user.email],
         fail_silently=False,
     )
+
+    
