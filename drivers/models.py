@@ -116,7 +116,9 @@ class Credential(models.Model):
     driver = models.ForeignKey(DriverProfile, on_delete=models.CASCADE, related_name='credentials')
     credential_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='missing')
+    file = models.FileField(upload_to='credentials/', null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
+
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

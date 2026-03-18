@@ -30,18 +30,18 @@ def driver_profile(request):
             profile.willing_relocate = request.POST.get('willing_relocate') == 'on'
             profile.bio = request.POST.get('bio', profile.bio)
             profile.phone = request.POST.get('phone', profile.phone)
-            profile.city = request.POST.get('city', profile.city)
-            profile.state = request.POST.get('state', profile.state).upper()
             profile.last_employer = request.POST.get('last_employer', profile.last_employer)
             profile.equipment_experience = request.POST.get('equipment_experience', profile.equipment_experience)
 
-            # Update city pool
-            city_pool = CityPool.objects.filter(
-                name__iexact=profile.city,
-                state__iexact=profile.state,
-                is_active=True
-            ).first()
-            profile.city_pool = city_pool
+            # Update city pool via ID
+            pool_id = request.POST.get('city_pool')
+            if pool_id:
+                city_pool = CityPool.objects.filter(id=pool_id).first()
+                if city_pool:
+                    profile.city_pool = city_pool
+                    profile.city = city_pool.name
+                    profile.state = city_pool.state
+            
             profile.save()
             messages.success(request, 'Profile updated successfully!')
             return redirect('drivers:profile')
@@ -96,16 +96,20 @@ def driver_profile(request):
 
         elif action == 'upload_credential':
             cred_type = request.POST.get('credential_type', '')
-            if cred_type:
+            cred_file = request.FILES.get('credential_file')
+            expiry = request.POST.get('expiry_date')
+
+            if cred_type and cred_file:
                 cred, _ = Credential.objects.get_or_create(
                     driver=profile,
-                    credential_type=cred_type,
-                    defaults={'status': 'pending'}
+                    credential_type=cred_type
                 )
-                if cred.status == 'missing':
-                    cred.status = 'pending'
-                    cred.save()
-                messages.success(request, f'Credential marked as uploaded — pending review.')
+                cred.file = cred_file
+                cred.status = 'pending'
+                if expiry:
+                    cred.expiry_date = expiry
+                cred.save()
+                messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
     # Build context

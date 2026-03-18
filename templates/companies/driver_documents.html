@@ -19,48 +19,38 @@
         </div>
       </div>
 
-      <h3 class="mb-16">Verified Credentials</h3>
-      <div class="credential-grid mb-32">
+      <h3 class="mb-16">Standard Credentials</h3>
+      <div class="credential-grid mb-32"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
         {% for cred in credentials %}
         <div class="card credential-card" style="padding:16px;">
           <h5 style="margin:0 0 8px 0;">{{ cred.get_credential_type_display }}</h5>
-          {% if cred.status == 'verified' %}
-          <span class="badge badge-green">✓ Verified</span>
-          {% elif cred.status == 'pending' %}
-          <span class="badge badge-amber">⏳ Pending Review</span>
-          {% elif cred.status == 'expired' %}
-          <span class="badge badge-red">✗ Expired</span>
-          {% else %}
-          <span class="badge badge-gray">{{ cred.get_status_display }}</span>
-          {% endif %}
+          <div class="mb-12">
+            {% if cred.status == 'verified' %}
+            <span class="badge badge-green">✓ Verified</span>
+            {% elif cred.status == 'pending' %}
+            <span class="badge badge-amber">⏳ Pending Review</span>
+            {% elif cred.status == 'expired' %}
+            <span class="badge badge-red">✗ Expired</span>
+            {% else %}
+            <span class="badge badge-gray">{{ cred.get_status_display }}</span>
+            {% endif %}
+          </div>
           {% if cred.expiry_date %}
-          <div class="text-xs text-muted mt-8">Expires: {{ cred.expiry_date|date:"M d, Y" }}</div>
+          <div class="text-xs text-muted mb-12">Expires: {{ cred.expiry_date|date:"M d, Y" }}</div>
+          {% endif %}
+
+          {% if cred.file %}
+          <a href="{{ cred.file.url }}" target="_blank" class="btn btn-primary btn-sm btn-block">View Document 📄</a>
+          {% else %}
+          <span class="text-xs text-muted italic">File not available</span>
           {% endif %}
         </div>
         {% empty %}
-        <p class="text-muted text-sm">No standard credentials on file.</p>
+        <p class="text-muted text-sm">No credentials have been uploaded yet.</p>
         {% endfor %}
       </div>
 
-      <h3 class="mb-16">Uploaded Documents</h3>
-      {% if documents %}
-      <ul style="list-style:none; padding:0;">
-        {% for doc in documents %}
-        <li
-          style="padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="fw-600">📄 {{ doc.name }}</div>
-            <div class="text-xs text-muted">Uploaded: {{ doc.uploaded_at|date:"M d, Y" }}</div>
-          </div>
-          <a href="{{ doc.file.url }}" target="_blank" class="btn btn-secondary btn-sm">View File</a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <div class="text-center p-24" style="background:var(--surface2); border-radius:8px;">
-        <p class="text-muted">No documents have been uploaded by this driver yet.</p>
-      </div>
-      {% endif %}
     </div>
   </div>
 </section>

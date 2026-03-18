@@ -183,11 +183,10 @@ def view_driver_documents(request, driver_id):
         messages.error(request, 'You do not have access to view this driver\'s documents.')
         return redirect('companies:dashboard')
 
-    credentials = target_driver.credentials.exclude(status='missing')
-    documents = target_driver.documents.all()
-
+    credentials = target_driver.credentials.exclude(file__exact='')
+    
     return render(request, 'companies/driver_documents.html', {
         'target_driver': target_driver,
         'credentials': credentials,
-        'documents': documents,
     })
+
