@@ -1,0 +1,469 @@
+{% extends 'base.html' %}
+{% block title %}My Driver Profile{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+    <div class="tab-bar">
+      <a href="?tab=profile" class="tab-link {% if tab == 'profile' %}active{% endif %}">My Profile</a>
+      <a href="?tab=credentials" class="tab-link {% if tab == 'credentials' %}active{% endif %}">Credentials</a>
+      <a href="?tab=reputation" class="tab-link {% if tab == 'reputation' %}active{% endif %}">Reputation</a>
+      <a href="?tab=applications" class="tab-link {% if tab == 'applications' %}active{% endif %}">Applications</a>
+      <a href="?tab=alerts" class="tab-link {% if tab == 'alerts' %}active{% endif %}">Alerts &amp; SMS</a>
+    </div>
+
+    {% if tab == 'profile' %}
+    <div class="profile-header">
+      <div class="avatar avatar-xl avatar-orange">{{ profile.initials }}</div>
+      <div class="profile-info" style="flex:1;">
+        <h2>{{ profile.user.get_full_name }}</h2>
+        <div class="text-muted">{{ profile.get_cdl_class_display }} · {{ profile.years_experience }} years experience ·
+          {{ profile.city }}, {{ profile.state }}</div>
+        <div class="profile-badges">
+          {% if profile.is_identity_verified %}
+          <span class="badge badge-green">✓ Identity Verified</span>
+          {% endif %}
+          <span class="badge badge-navy">{{ profile.get_cdl_class_display }}</span>
+          {% for spec in profile.specialty_list %}
+          <span class="badge badge-orange">{{ spec }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        {% if profile.avg_rating > 0 %}
+        <div style="text-align:right;">
+          <span class="aggregate-score" style="font-size:2rem;">{{ profile.avg_rating }}</span>
+          <div class="stars">
+            {% for i in "12345" %}
+            {% if forloop.counter <= profile.avg_rating %} <span class="star filled">★</span>
+              {% else %}
+              <span class="star">★</span>
+              {% endif %}
+              {% endfor %}
+          </div>
+          <div class="text-xs text-hint">{{ profile.review_count }} reviews</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="profile-stats-row">
+      <div class="profile-stat">
+        <div class="stat-number">{{ profile.companies_viewed_count }}</div>
+        <div class="stat-label">Companies viewed</div>
+      </div>
+      <div class="profile-stat">
+        <div class="stat-number">{{ profile.applications_count }}</div>
+        <div class="stat-label">Applications sent</div>
+      </div>
+      <div class="profile-stat">
+        <div class="stat-number">{{ profile.interviews_count }}</div>
+        <div class="stat-label">Interviews scheduled</div>
+      </div>
+    </div>
+
+    <div class="card card-navy-tint mb-24">
+      <h4 style="margin-bottom:12px;">🔒 Passive Talent Mode</h4>
+      <p class="text-sm text-muted mb-16">Set your availability and minimum pay. Companies can send you private offers
+        without your employer knowing.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_passive">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Availability</label>
+            <select name="availability" class="form-select">
+              <option value="actively_hunting" {% if profile.availability=='actively_hunting' %}selected{% endif %}>
+                Actively Hunting</option>
+              <option value="employed_open" {% if profile.availability=='employed_open' %}selected{% endif %}>Employed
+                but Open</option>
+              <option value="not_looking" {% if profile.availability=='not_looking' %}selected{% endif %}>Not Looking
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minimum Pay ($/hr)</label>
+            <input type="number" name="min_pay_hourly" class="form-input"
+              value="{{ profile.min_pay_hourly|default:'' }}" step="0.50" min="0" placeholder="25.00">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">Update Settings</button>
+      </form>
+    </div>
+
+    <div class="info-grid mb-24">
+      <div class="card info-card">
+        <div class="info-label">Preferred Shift</div>
+        <div class="info-value">{{ profile.get_preferred_shift_display }}</div>
+      </div>
+      <div class="card info-card">
+        <div class="info-label">Willing to Relocate</div>
+        <div class="info-value">{% if profile.willing_relocate %}Yes{% else %}No{% endif %}</div>
+      </div>
+      <div class="card info-card">
+        <div class="info-label">Equipment Experience</div>
+        <div class="info-value">{{ profile.equipment_experience|default:"Not specified" }}</div>
+      </div>
+      <div class="card info-card">
+        <div class="info-label">Last Employer</div>
+        <div class="info-value">{{ profile.last_employer|default:"Not specified" }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 style="margin-bottom:16px;">Edit Profile</h4>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CDL Class</label>
+            <select name="cdl_class" class="form-select">
+              <option value="cdl_a" {% if profile.cdl_class=='cdl_a' %}selected{% endif %}>CDL-A</option>
+              <option value="cdl_b" {% if profile.cdl_class=='cdl_b' %}selected{% endif %}>CDL-B</option>
+              <option value="no_cdl" {% if profile.cdl_class=='no_cdl' %}selected{% endif %}>No CDL</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Years Experience</label>
+            <input type="number" name="years_experience" class="form-input" value="{{ profile.years_experience }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialties (comma-separated)</label>
+          <input type="text" name="specialties" class="form-input" value="{{ profile.specialties }}"
+            placeholder="flatbed, rollback, heavy-duty">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Preferred Shift</label>
+            <select name="preferred_shift" class="form-select">
+              <option value="day" {% if profile.preferred_shift=='day' %}selected{% endif %}>Day Shift</option>
+              <option value="night" {% if profile.preferred_shift=='night' %}selected{% endif %}>Night Shift</option>
+              <option value="rotating" {% if profile.preferred_shift=='rotating' %}selected{% endif %}>Rotating</option>
+              <option value="flexible" {% if profile.preferred_shift=='flexible' %}selected{% endif %}>Flexible</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="phone" class="form-input" value="{{ profile.phone }}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" name="city" class="form-input" value="{{ profile.city }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <input type="text" name="state" class="form-input" maxlength="2" value="{{ profile.state }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Equipment Experience</label>
+          <input type="text" name="equipment_experience" class="form-input" value="{{ profile.equipment_experience }}"
+            placeholder="Flatbed, wheel-lift, integrated...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Employer</label>
+          <input type="text" name="last_employer" class="form-input" value="{{ profile.last_employer }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio</label>
+          <textarea name="bio" class="form-textarea"
+            placeholder="Tell companies about yourself...">{{ profile.bio }}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" name="willing_relocate" {% if profile.willing_relocate %}checked{% endif %}> Willing
+            to relocate
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+      </form>
+    </div>
+
+    {% elif tab == 'credentials' %}
+    <div class="mb-24">
+      <h3>Credential Vault</h3>
+      <p class="text-muted">Upload your credentials once. Share with employers selectively.</p>
+    </div>
+
+    <!-- Access Requests Section -->
+    {% if access_requests %}
+    <div class="card mb-24" style="border: 1px solid var(--amber);">
+      <h4 style="color: var(--amber); margin-bottom: 12px;">⏳ Pending Dispatcher Requests</h4>
+      {% for req in access_requests %}
+      {% if req.status == 'pending' %}
+      <div class="d-flex align-center justify-between" style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+        <div>
+          <strong>{{ req.dispatcher.company_name }}</strong> has requested access to view your credentials.
+          <div class="text-sm text-muted">{{ req.created_at|date:"M d, Y" }}</div>
+        </div>
+        <div class="d-flex gap-8">
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="handle_access_request">
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <input type="hidden" name="verdict" value="approved">
+            <button type="submit" class="btn btn-green btn-sm">Grant Access</button>
+          </form>
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="handle_access_request">
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <input type="hidden" name="verdict" value="rejected">
+            <button type="submit" class="btn btn-red btn-sm">Reject</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card mb-24">
+      <div class="d-flex align-center justify-between mb-8">
+        <span class="fw-600">Profile Completeness</span>
+        <span class="fw-600 text-brand">{{ profile.credential_completeness }}%</span>
+      </div>
+      {% if profile.credential_completeness >= 80 %}
+      <div class="progress-bar progress-green">
+        {% elif profile.credential_completeness >= 50 %}
+        <div class="progress-bar progress-orange">
+          {% else %}
+          <div class="progress-bar progress-navy">
+            {% endif %}
+            <div class="progress-fill" style="width:{{ profile.credential_completeness }}%;"></div>
+          </div>
+        </div>
+
+        <div class="credential-grid">
+          {% for cred in credentials %}
+          <div class="card credential-card">
+            <h5>{{ cred.get_credential_type_display }}</h5>
+            {% if cred.status == 'verified' %}
+            <span class="badge badge-green">✓ Verified</span>
+            {% elif cred.status == 'pending' %}
+            <span class="badge badge-amber">⏳ Pending</span>
+            {% elif cred.status == 'expired' %}
+            <span class="badge badge-red">✗ Expired</span>
+            {% else %}
+            <span class="badge badge-gray">Not uploaded</span>
+            {% endif %}
+            {% if cred.expiry_date %}
+            <div class="text-sm text-muted mt-8">Expires: {{ cred.expiry_date|date:"M d, Y" }}</div>
+            {% endif %}
+            {% if cred.status == 'missing' %}
+            <form method="post" class="mt-8">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="upload_credential">
+              <input type="hidden" name="credential_type" value="{{ cred.credential_type }}">
+              <button type="submit" class="btn btn-ghost btn-sm">Upload Document</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if profile.credential_completeness < 100 %} <div class="card card-navy-tint mt-24">
+          <p class="text-sm">💡 <strong>Adding Hazmat endorsement adds 17% to your eligibility.</strong> Companies with
+            hazmat loads prioritize drivers with this credential.</p>
+      </div>
+      {% endif %}
+
+      <!-- Custom Document Uploads -->
+      <div class="card mt-24">
+        <h4 class="mb-16">My Uploaded Documents</h4>
+        {% if documents %}
+        <ul style="list-style: none; padding: 0; margin-bottom: 16px;">
+          {% for doc in documents %}
+          <li
+            style="padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+            <span>📄 {{ doc.name }}</span>
+            <span class="text-sm text-muted">{{ doc.uploaded_at|date:"M d, Y" }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-sm mb-16">No documents uploaded yet.</p>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="d-flex flex-column gap-16" style="max-width: 400px;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="upload_document">
+          <div class="form-group mb-0">
+            <label class="form-label">Document Name</label>
+            <input type="text" name="document_name" class="form-input" required
+              placeholder="e.g. CDL Copy, Medical Card">
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label">File to Upload</label>
+            <input type="file" name="document_file" class="form-input" required>
+          </div>
+          <button type="submit" class="btn btn-secondary btn-sm" style="align-self: flex-start;">Upload
+            Document</button>
+        </form>
+      </div>
+
+      <div class="card mt-16" style="background:var(--surface2);">
+        <p class="text-sm text-muted">🔒 Your credentials are stored securely. You control who can see them.</p>
+      </div>
+
+      {% elif tab == 'reputation' %}
+      <div class="d-flex gap-24 mb-32">
+        <div>
+          <div class="aggregate-score">{{ profile.avg_rating }}</div>
+          <div class="stars mt-8">
+            {% for i in "12345" %}
+            {% if forloop.counter <= profile.avg_rating %} <span class="star filled">★</span>
+              {% else %}
+              <span class="star">★</span>
+              {% endif %}
+              {% endfor %}
+          </div>
+          <div class="text-sm text-muted mt-8">{{ profile.review_count }} reviews</div>
+        </div>
+        <div style="flex:1;">
+          <h3 style="margin-bottom:16px;">Category Breakdown</h3>
+          <p class="text-muted">Review scores from past employers</p>
+        </div>
+      </div>
+
+      {% for review in reviews %}
+      <div class="card review-card mb-16">
+        <div class="review-header">
+          <div class="avatar avatar-md avatar-navy">{{ review.company.initials }}</div>
+          <div class="review-company-info">
+            <div class="review-company-name">{{ review.company.company_name }}</div>
+            <div class="review-dates">
+              {% if review.employed_from and review.employed_to %}
+              {{ review.employed_from|date:"M Y" }} – {{ review.employed_to|date:"M Y" }}
+              {% endif %}
+            </div>
+          </div>
+          <div class="stars">
+            {% for i in "12345" %}
+            {% if forloop.counter <= review.overall_average %} <span class="star filled">★</span>
+              {% else %}
+              <span class="star">★</span>
+              {% endif %}
+              {% endfor %}
+          </div>
+        </div>
+        {% if review.comment %}
+        <div class="review-comment">{{ review.comment }}</div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="card text-center" style="padding:40px;">
+        <p class="text-muted">No reviews yet. Reviews from companies will appear here.</p>
+      </div>
+      {% endfor %}
+
+      {% elif tab == 'applications' %}
+      <h3 class="mb-16">My Applications</h3>
+      <div class="card">
+        {% for app in applications %}
+        <div class="application-row">
+          {% if app.job.category == 'tow_truck' %}
+          <div class="avatar avatar-md avatar-orange">{{ app.job.company.initials }}</div>
+          {% else %}
+          <div class="avatar avatar-md avatar-navy">{{ app.job.company.initials }}</div>
+          {% endif %}
+          <div class="application-info">
+            <div class="application-title"><a href="{% url 'jobs:detail' app.job.pk %}">{{ app.job.title }}</a></div>
+            <div class="application-company">{{ app.job.company.company_name }}</div>
+          </div>
+          {% if app.stage == 'applied' %}
+          <span class="badge badge-gray">{{ app.get_stage_display }}</span>
+          {% elif app.stage == 'reviewed' %}
+          <span class="badge badge-navy">{{ app.get_stage_display }}</span>
+          {% elif app.stage == 'interview' %}
+          <span class="badge badge-amber">{{ app.get_stage_display }}</span>
+          {% elif app.stage == 'hired' %}
+          <span class="badge badge-green">{{ app.get_stage_display }}</span>
+          {% endif %}
+          <div class="text-sm text-hint">{{ app.created_at|date:"M d" }}</div>
+        </div>
+        {% empty %}
+        <div class="text-center" style="padding:40px;">
+          <p class="text-muted">No applications yet. <a href="{% url 'jobs:list' %}">Browse open jobs</a></p>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% elif tab == 'alerts' %}
+      <div class="two-col mb-32">
+        <div class="card">
+          <h4 style="margin-bottom:16px;">📱 SMS Notifications</h4>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_alerts">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>Profile views</span>
+                <input type="checkbox" name="sms_profile_views" class="toggle" {% if profile.sms_profile_views
+                  %}checked{% endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>Interview requests</span>
+                <input type="checkbox" name="sms_interview_req" class="toggle" {% if profile.sms_interview_req
+                  %}checked{% endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>Private offers</span>
+                <input type="checkbox" name="sms_private_offer" class="toggle" {% if profile.sms_private_offer
+                  %}checked{% endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>Job match alerts</span>
+                <input type="checkbox" name="sms_job_match" class="toggle" {% if profile.sms_job_match %}checked{% endif
+                  %}>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm mt-16">Save Preferences</button>
+          </form>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:16px;">📋 Credential Expiry Alerts</h4>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_alerts">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>CDL expiry alerts</span>
+                <input type="checkbox" name="alert_cdl_expiry" class="toggle" {% if profile.alert_cdl_expiry %}checked{%
+                  endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>DOT medical expiry</span>
+                <input type="checkbox" name="alert_dot_expiry" class="toggle" {% if profile.alert_dot_expiry %}checked{%
+                  endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>MVR annual renewal</span>
+                <input type="checkbox" name="alert_mvr_annual" class="toggle" {% if profile.alert_mvr_annual %}checked{%
+                  endif %}>
+              </label>
+              <label style="display:flex;align-items:center;justify-content:space-between;">
+                <span>WreckMaster renewal</span>
+                <input type="checkbox" name="alert_wreckmaster" class="toggle" {% if profile.alert_wreckmaster
+                  %}checked{% endif %}>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm mt-16">Save Preferences</button>
+          </form>
+        </div>
+      </div>
+
+      <h4 class="mb-16">📬 SMS Preview</h4>
+      <div style="max-width:400px;">
+        <div class="sms-bubble">Ace Towing in Columbus viewed your profile. Reply Y to share credentials…</div>
+        <div class="sms-bubble">Your DOT medical card expires in 58 days. Renew at any certified clinic…</div>
+        <div class="sms-bubble">MaxFreight Logistics wants to send you a job offer. Reply VIEW…</div>
+      </div>
+      {% endif %}
+    </div>
+</section>
+{% endblock %}

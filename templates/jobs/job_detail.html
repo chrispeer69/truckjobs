@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} at {{ job.company.company_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container-sm">
+        <a href="{% url 'jobs:list' %}" class="text-muted text-sm"
+            style="display:inline-flex;align-items:center;gap:4px;margin-bottom:24px;">← Back to all jobs</a>
+
+        <div class="card" style="padding:32px;">
+            <!-- Header -->
+            <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;">
+                <div
+                    class="avatar avatar-lg {% if job.category == 'tow_truck' %}avatar-orange{% else %}avatar-navy{% endif %}">
+                    {{ job.company.initials }}
+                </div>
+                <div style="flex:1;">
+                    <h1 style="font-size:2rem;margin-bottom:4px;">{{ job.title }}</h1>
+                    <div class="text-muted" style="font-size:1.1rem;">{{ job.company.company_name }}</div>
+                    {% if job.city_pool %}<div class="text-hint text-sm mt-8">📍 {{ job.city_pool }} · {{
+                        job.time_since_posted }}</div>{% endif %}
+                </div>
+                <div class="job-card-pay {% if job.category == 'tow_truck' %}tow{% else %}box{% endif %}"
+                    style="font-size:1.8rem;">
+                    {{ job.pay_display }}
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+                {% if job.category == 'tow_truck' %}
+                <span class="tag tag-tow">🚛 Tow Truck</span>
+                {% elif job.category == 'box_truck' %}
+                <span class="tag tag-box">📦 Box Truck</span>
+                {% endif %}
+                <span class="badge badge-navy">{{ job.get_cdl_requirement_display }}</span>
+                <span class="badge badge-gray">{{ job.get_employment_type_display }}</span>
+                {% if job.is_urgent %}<span class="badge badge-red">🔴 Urgent Hire</span>{% endif %}
+                {% if job.experience_years %}<span class="badge badge-gray">{{ job.experience_years }}+ years
+                    exp.</span>{% endif %}
+            </div>
+
+            <!-- Description -->
+            <div style="margin-bottom:24px;">
+                <h4 style="margin-bottom:12px;">Job Description</h4>
+                <div style="line-height:1.8;color:var(--muted);">{{ job.description|linebreaks }}</div>
+            </div>
+
+            <!-- Benefits -->
+            {% if job.benefits_list %}
+            <div style="margin-bottom:24px;">
+                <h4 style="margin-bottom:12px;">Benefits &amp; Perks</h4>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    {% for benefit in job.benefits_list %}
+                    <span class="badge badge-green">✓ {{ benefit }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Company Info -->
+            <div style="margin-bottom:32px;padding:20px;background:var(--surface2);border-radius:var(--r);">
+                <h5 style="margin-bottom:8px;">About {{ job.company.company_name }}</h5>
+                <div class="text-sm text-muted">
+                    <span>{{ job.company.get_company_type_display }}</span>
+                    {% if job.company.city %} · <span>{{ job.company.city }}, {{ job.company.state }}</span>{% endif %}
+                    {% if job.company.years_in_operation %} · <span>{{ job.company.years_in_operation }} years in
+                        operation</span>{% endif %}
+                </div>
+            </div>
+
+            <!-- CTA -->
+            {% if user.is_authenticated and user.role == 'driver' %}
+            {% if has_applied %}
+            <div class="btn btn-applied btn-lg btn-block">You've Applied ✓</div>
+            {% else %}
+            <a href="{% url 'drivers:quick_apply' job.pk %}?next={% url 'jobs:detail' job.pk %}"
+                class="btn btn-primary btn-lg btn-block">Apply Now</a>
+            {% endif %}
+            {% elif user.is_authenticated and user.role == 'company' %}
+            <div class="text-center text-muted text-sm">You're viewing this as a company account.</div>
+            {% else %}
+            <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-lg btn-block">Create Profile to
+                Apply</a>
+            {% endif %}
+
+            <div class="text-center text-hint text-sm mt-16">
+                👥 {{ job.matched_drivers_count }} drivers in this city pool
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

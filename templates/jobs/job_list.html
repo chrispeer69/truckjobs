@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Browse Driving Jobs{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+    <div class="mb-24">
+      <span class="eyebrow">Open Positions</span>
+      <h2>Browse Driving Jobs</h2>
+    </div>
+
+    <form method="get" class="search-bar">
+      <input type="text" name="q" class="form-input" placeholder="Search job titles, companies..." value="{{ q }}">
+      <input type="text" name="city" class="form-input" placeholder="City" value="{{ city }}" style="max-width:200px;">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="filter-pills">
+      <a href="{% url 'jobs:list' %}" class="filter-pill {% if not category and not cdl and not employment and not urgent and not bonus %}active{% endif %}">All</a>
+      <a href="?category=tow_truck" class="filter-pill {% if category == 'tow_truck' %}active{% endif %}">🚛 Tow Truck</a>
+      <a href="?category=box_truck" class="filter-pill {% if category == 'box_truck' %}active{% endif %}">📦 Box Truck</a>
+      <a href="?cdl=cdl_a" class="filter-pill {% if cdl == 'cdl_a' %}active{% endif %}">CDL-A</a>
+      <a href="?cdl=cdl_b" class="filter-pill {% if cdl == 'cdl_b' %}active{% endif %}">CDL-B</a>
+      <a href="?cdl=no_cdl" class="filter-pill {% if cdl == 'no_cdl' %}active{% endif %}">No CDL</a>
+      <a href="?urgent=1" class="filter-pill {% if urgent %}active{% endif %}">🔴 Urgent Hire</a>
+      <a href="?employment=full_time" class="filter-pill {% if employment == 'full_time' %}active{% endif %}">Full Time</a>
+      <a href="?employment=part_time" class="filter-pill {% if employment == 'part_time' %}active{% endif %}">Part Time</a>
+      <a href="?bonus=1" class="filter-pill {% if bonus %}active{% endif %}">💰 Sign-on Bonus</a>
+    </div>
+
+    {% if jobs %}
+    <div>
+      {% for job in jobs %}
+      <div class="card job-card mb-16">
+        {% if job.category == 'tow_truck' %}
+        <div class="avatar avatar-md avatar-orange">{{ job.company.initials }}</div>
+        {% else %}
+        <div class="avatar avatar-md avatar-navy">{{ job.company.initials }}</div>
+        {% endif %}
+        <div class="job-card-body">
+          <a href="{% url 'jobs:detail' job.pk %}" class="job-card-title">{{ job.title }}</a>
+          <div class="job-card-company">{{ job.company.company_name }}</div>
+          <div class="job-card-tags">
+            {% if job.category == 'tow_truck' %}
+            <span class="tag tag-tow">🚛 Tow Truck</span>
+            {% endif %}
+            {% if job.category == 'box_truck' %}
+            <span class="tag tag-box">📦 Box Truck</span>
+            {% endif %}
+            <span class="badge badge-navy">{{ job.get_cdl_requirement_display }}</span>
+            <span class="badge badge-gray">{{ job.get_employment_type_display }}</span>
+            {% if job.is_urgent %}
+            <span class="badge badge-red">🔴 Urgent Hire</span>
+            {% endif %}
+          </div>
+          {% if job.category == 'tow_truck' %}
+          <div class="job-card-pay tow">{{ job.pay_display }}</div>
+          {% else %}
+          <div class="job-card-pay box">{{ job.pay_display }}</div>
+          {% endif %}
+          <div class="job-card-meta">
+            {% if job.city_pool %}
+            <span>📍 {{ job.city_pool }}</span>
+            {% endif %}
+            <span>🕐 {{ job.time_since_posted }}</span>
+            <span>👥 {{ job.matched_drivers_count }} drivers in pool</span>
+          </div>
+        </div>
+        <div class="job-card-actions">
+          {% if user.is_authenticated and user.role == 'driver' %}
+            {% if job.pk in applied_job_ids %}
+            <span class="btn btn-applied btn-sm">Applied ✓</span>
+            {% else %}
+            <a href="{% url 'drivers:quick_apply' job.pk %}?next={% url 'jobs:list' %}" class="btn btn-primary btn-sm">Quick Apply</a>
+            {% endif %}
+          {% else %}
+          <a href="{% url 'jobs:detail' job.pk %}" class="btn btn-ghost btn-sm">View Details</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card text-center" style="padding:60px 20px;">
+      <h3 class="text-muted">No jobs found</h3>
+      <p class="text-hint mt-8">Try adjusting your filters or search terms.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

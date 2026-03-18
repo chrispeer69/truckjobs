@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Dispatcher Registration{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container-xs">
+        <div class="text-center mb-32">
+            <span class="eyebrow">Dispatcher Registration</span>
+            <h2>Start hiring drivers today</h2>
+            <p class="text-muted">Post jobs, access the city driver pool, and manage your hiring pipeline — all free
+                during launch.</p>
+        </div>
+        <div class="card">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="contact_name">Contact Name</label>
+                    <input type="text" id="contact_name" name="contact_name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="company_type">Company Type</label>
+                    <select id="company_type" name="company_type" class="form-select">
+                        <option value="towing">Towing</option>
+                        <option value="freight">Freight / Box Truck</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="city">City</label>
+                        <input type="text" id="city" name="city" class="form-input" required placeholder="Columbus">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="state">State</label>
+                        <input type="text" id="state" name="state" class="form-input" maxlength="2" required
+                            placeholder="OH">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="(614) 555-1234">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required minlength="8">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-block btn-lg mt-8">Create Dispatcher Account</button>
+            </form>
+            <div class="text-center mt-24">
+                <p class="text-muted text-sm">Already have an account? <a href="{% url 'core:login' %}">Sign in</a></p>
+                <p class="text-muted text-sm mt-8">Are you a driver? <a href="{% url 'core:register_driver' %}">Register
+                        as driver</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

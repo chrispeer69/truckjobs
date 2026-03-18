@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}City Pools{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container">
+        <div class="section-header" style="text-align:left;">
+            <span class="eyebrow">City Driver Pools</span>
+            <h2>Join your city's driver pool</h2>
+            <p style="margin-left:0;">Drivers join once. Companies browse and post jobs. No repeated applications.</p>
+        </div>
+
+        <!-- User's Current Pool -->
+        {% if user_pool %}
+        <div class="card card-orange-tint mb-24" style="border:1px solid var(--brand);">
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div class="pool-dot active"></div>
+                <div style="flex:1;">
+                    <h4 style="margin-bottom:2px;">📍 You're active in {{ user_pool }}</h4>
+                    <p class="text-sm text-muted">You're visible to all companies in this pool. {{
+                        user_pool.driver_count }} drivers · {{ user_pool.company_count }} companies · {{
+                        user_pool.open_job_count }} open jobs</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- How It Works -->
+        <div class="card card-navy-tint mb-32">
+            <h4 style="margin-bottom:16px;">How city pools work</h4>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+                <div>
+                    <div style="font-size:1.5rem;margin-bottom:6px;">1️⃣</div>
+                    <h5>Join your city</h5>
+                    <p class="text-sm text-muted">Select your city when you create your profile.</p>
+                </div>
+                <div>
+                    <div style="font-size:1.5rem;margin-bottom:6px;">2️⃣</div>
+                    <h5>Build your profile</h5>
+                    <p class="text-sm text-muted">Add credentials, experience, and set your availability.</p>
+                </div>
+                <div>
+                    <div style="font-size:1.5rem;margin-bottom:6px;">3️⃣</div>
+                    <h5>Get discovered</h5>
+                    <p class="text-sm text-muted">Companies in your city browse the pool and find you.</p>
+                </div>
+                <div>
+                    <div style="font-size:1.5rem;margin-bottom:6px;">4️⃣</div>
+                    <h5>Get hired</h5>
+                    <p class="text-sm text-muted">Apply to jobs or receive private offers from companies.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pool List -->
+        <div class="card">
+            <h4 style="margin-bottom:16px;">All Cities</h4>
+            {% for pool in pools %}
+            <div class="pool-row">
+                <div class="pool-dot {% if pool.is_active %}active{% else %}coming-soon{% endif %}"></div>
+                <div class="pool-name">
+                    {{ pool.name }}, {{ pool.state }}
+                    {% if user_pool and user_pool.pk == pool.pk %}<span class="badge badge-orange"
+                        style="margin-left:8px;">Your pool</span>{% endif %}
+                </div>
+                <div class="pool-stats">
+                    <span>👤 {{ pool.driver_count }} drivers</span>
+                    <span>🏢 {{ pool.company_count }} companies</span>
+                    <span>💼 {{ pool.open_job_count }} open jobs</span>
+                </div>
+                {% if pool.is_active %}
+                <span class="badge badge-green">Active</span>
+                {% else %}
+                <span class="badge badge-gray">Coming Soon</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

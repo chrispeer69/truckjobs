@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}TruckJobs — For Drivers and Dispatchers{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero text-center" style="padding: 80px 20px;">
+    <div class="container">
+        <h1>The Upwork for Truck Drivers</h1>
+        <p class="text-muted text-lg mt-16 mb-32" style="max-width: 600px; margin-left: auto; margin-right: auto;">Build
+            your profile, join the city pool, and let dispatchers come to you.</p>
+        <div class="d-flex justify-center gap-16 flex-wrap" style="justify-content: center;">
+            <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-lg">Join as Driver</a>
+            <a href="{% url 'core:register_company' %}" class="btn btn-secondary btn-lg">Join as Dispatcher</a>
+        </div>
+        <div class="mt-24">
+            <span class="badge badge-green" style="font-size: 1rem; padding: 8px 16px;">Currently Free in MVP: No
+                Payment Yet</span>
+        </div>
+    </div>
+</section>
+
+<!-- Who It's For -->
+<section class="section" style="background: var(--surface2);">
+    <div class="container">
+        <div class="text-center mb-48">
+            <span class="eyebrow">Target Audience</span>
+            <h2>Who it's for?</h2>
+        </div>
+        <div class="two-col mt-32">
+            <div class="card" style="border-top: 4px solid var(--orange);">
+                <h3>🚚 For Drivers</h3>
+                <p class="text-muted mt-12 line-height-lg">Create your free account, upload your credentials securely,
+                    and set your status. Dispatchers request access to your profile when they want to hire you.</p>
+                <div class="mt-16 text-sm p-12" style="background: var(--background); border-radius: 8px;">
+                    <strong>Profile includes:</strong> Name, Experience, State, Rating
+                </div>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--navy);">
+                <h3>🏢 For Dispatchers</h3>
+                <p class="text-muted mt-12 line-height-lg">Browse verified city driver pools, check profiles, and
+                    request credential access. Hire drivers directly with zero upfront fees.</p>
+                <div class="mt-16 text-sm p-12" style="background: var(--background); border-radius: 8px;">
+                    <strong>Dispatcher Dashboard:</strong> Manage your talent pipeline
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Value Proposition -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-48">
+            <span class="eyebrow">Features</span>
+            <h2>Value Proposition</h2>
+        </div>
+        <div class="card-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px;">
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">⭐</div>
+                <h4>Driver Reputation Score</h4>
+                <p class="text-muted text-sm mt-8">Build a portable reputation that stays with you across employers.</p>
+            </div>
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">🤫</div>
+                <h4>Passive Talent Mode</h4>
+                <p class="text-muted text-sm mt-8">Open to work but currently employed? Get private offers without risk.
+                </p>
+            </div>
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">📍</div>
+                <h4>City Driver Pools</h4>
+                <p class="text-muted text-sm mt-8">Filter and browse drivers directly in your specific area.</p>
+            </div>
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">📊</div>
+                <h4>Pipeline Dashboard</h4>
+                <p class="text-muted text-sm mt-8">Track applicants from Applied to Hired with full visibility.</p>
+            </div>
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">✉️</div>
+                <h4>Mail Workflow Setup</h4>
+                <p class="text-muted text-sm mt-8">Automated email handshakes for credential access and hiring.</p>
+                <div class="badge badge-amber mt-16" style="display: inline-block;">Alert: No Messages Yet, Just Mail
+                    Setup</div>
+            </div>
+            <div class="card text-center">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">🔒</div>
+                <h4>Secure Verification</h4>
+                <p class="text-muted text-sm mt-8">Secure credential vault. <br><em style="font-size: 0.8rem;">(60 Days
+                        alert - Not needed yet for MVP)</em></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

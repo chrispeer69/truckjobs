@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}Post a Job{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container-sm">
+        <div class="mb-32">
+            <span class="eyebrow">Post a Job</span>
+            <h2>Create a new job listing</h2>
+            <p class="text-muted">Your listing goes live instantly and is visible to all verified drivers in your city
+                pool.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Company Info -->
+            <div class="card mb-24">
+                <h4 style="margin-bottom:16px;">Company Info</h4>
+                <div class="form-group">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="form-input" value="{{ profile.company_name }}" disabled>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Company Type</label>
+                        <input type="text" class="form-input" value="{{ profile.get_company_type_display }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" value="{{ profile.city }}, {{ profile.state }}" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Details -->
+            <div class="card mb-24">
+                <h4 style="margin-bottom:16px;">Job Details</h4>
+                <div class="form-group">
+                    <label class="form-label" for="title">Job Title *</label>
+                    <input type="text" id="title" name="title" class="form-input" required
+                        placeholder="e.g. Flatbed Tow Truck Operator">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="category">Job Category *</label>
+                        <select id="category" name="category" class="form-select">
+                            <option value="tow_truck">Tow Truck</option>
+                            <option value="box_truck">Box Truck</option>
+                            <option value="dispatcher">Dispatcher</option>
+                            <option value="shop">Shop / Mechanic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="employment_type">Employment Type *</label>
+                        <select id="employment_type" name="employment_type" class="form-select">
+                            <option value="full_time">Full Time</option>
+                            <option value="part_time">Part Time</option>
+                            <option value="contract">1099 / Contract</option>
+                            <option value="temp">Temporary</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="cdl_requirement">CDL Requirement *</label>
+                        <select id="cdl_requirement" name="cdl_requirement" class="form-select">
+                            <option value="cdl_a">CDL-A Required</option>
+                            <option value="cdl_b">CDL-B Required</option>
+                            <option value="no_cdl">No CDL Required</option>
+                            <option value="cdl_preferred">CDL Preferred</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="experience_years">Experience Required (years)</label>
+                        <input type="number" id="experience_years" name="experience_years" class="form-input" min="0"
+                            value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="pay_min">Pay Min</label>
+                        <input type="number" id="pay_min" name="pay_min" class="form-input" step="0.01"
+                            placeholder="22.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="pay_max">Pay Max</label>
+                        <input type="number" id="pay_max" name="pay_max" class="form-input" step="0.01"
+                            placeholder="30.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pay_type">Pay Type</label>
+                    <select id="pay_type" name="pay_type" class="form-select">
+                        <option value="hourly">Per Hour</option>
+                        <option value="per_mile">Per Mile</option>
+                        <option value="salary">Salary</option>
+                        <option value="per_load">Per Load</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="description">Job Description *</label>
+                    <textarea id="description" name="description" class="form-textarea" required
+                        placeholder="Describe the role, responsibilities, schedule..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" name="is_urgent"> Mark as Urgent Hire
+                    </label>
+                </div>
+            </div>
+
+            <!-- Benefits & Perks -->
+            <div class="card mb-24">
+                <h4 style="margin-bottom:16px;">Benefits &amp; Perks</h4>
+                <p class="text-sm text-muted mb-16">Select all that apply.</p>
+                <div class="benefit-pills">
+                    {% for benefit in all_benefits %}
+                    <label class="benefit-pill" style="cursor:pointer;">
+                        <input type="checkbox" name="benefits" value="{{ benefit }}" style="display:none;"
+                            onchange="this.parentElement.classList.toggle('selected')">
+                        {{ benefit }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="card mb-24">
+                <h4 style="margin-bottom:16px;">Contact</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Contact Name</label>
+                        <input type="text" class="form-input" value="{{ profile.contact_name }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" value="{{ profile.phone }}" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-12" style="justify-content:flex-end;">
+                <button type="submit" name="save_draft" value="1" class="btn btn-ghost btn-lg">Save Draft</button>
+                <button type="submit" class="btn btn-primary btn-lg">Post Job — Free</button>
+            </div>
+            <p class="text-sm text-hint text-center mt-16">Your listing goes live instantly and is visible to all
+                verified drivers in your city pool.</p>
+        </form>
+    </div>
+</section>
+{% endblock %}

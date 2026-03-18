@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Driver Registration{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container-xs">
+        <div class="text-center mb-32">
+            <span class="eyebrow">Driver Registration</span>
+            <h2>Build your driver profile</h2>
+            <p class="text-muted">Join free. Build your reputation. Get hired by the best companies in your city.</p>
+        </div>
+        <div class="card">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="cdl_class">CDL Class</label>
+                    <select id="cdl_class" name="cdl_class" class="form-select">
+                        <option value="cdl_a">CDL-A</option>
+                        <option value="cdl_b">CDL-B</option>
+                        <option value="no_cdl">No CDL</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="years_experience">Years of Experience</label>
+                    <input type="number" id="years_experience" name="years_experience" class="form-input" min="0"
+                        value="0">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="city">City</label>
+                        <input type="text" id="city" name="city" class="form-input" placeholder="Columbus">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="state">State</label>
+                        <input type="text" id="state" name="state" class="form-input" maxlength="2" placeholder="OH">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-8">Create My Driver Profile</button>
+            </form>
+            <div class="text-center mt-24">
+                <p class="text-muted text-sm">Already have an account? <a href="{% url 'core:login' %}">Sign in</a></p>
+                <p class="text-muted text-sm mt-8">Are you a company? <a
+                        href="{% url 'core:register_company' %}">Register as company</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
