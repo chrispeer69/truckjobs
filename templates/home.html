@@ -175,15 +175,50 @@
 <section class="section" style="background: var(--brand); color: white; border-radius: 12px; margin: 0 24px 40px;">
     <div class="container text-center">
         <h2 style="color: white; margin-bottom: 24px;">Stop Funding Indeed Investors</h2>
-        <p style="font-size: 1.2rem; max-width: 800px; margin-left: auto; margin-right: auto; opacity: 0.9;">
+        <p style="font-size: 1.1rem; max-width: 700px; margin: 0 auto 32px; opacity: 0.9;">
             Tired of paying big tech platforms that prioritize their investors over your business?
-            DrivingJobs.online is built by the community, for the community.
-            We keep costs low and focus on what matters: **getting drivers hired.**
+            Here is how we compare to the old way of hiring.
         </p>
-        <div class="mt-32">
-            <a href="{% url 'core:register_driver' %}" class="btn btn-secondary btn-lg"
-                style="background: white; color: var(--brand);">Join the Community</a>
+
+        <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--rl); padding: 8px;">
+            <table class="comparison-table" style="margin: 0; border: none; color: var(--text);">
+                <thead>
+                    <tr>
+                        <th style="background: var(--surface2); color: var(--text);">Feature</th>
+                        <th style="background: var(--surface2); color: var(--text);">Indeed & Big Tech</th>
+                        <th style="background: var(--brand-light); color: var(--brand-dark);">DrivingJobs.online</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pricing</strong></td>
+                        <td>Expensive Pay-Per-Click</td>
+                        <td><span class="badge badge-green">Free during MVP</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Focus</strong></td>
+                        <td>Maximize Investor Profit</td>
+                        <td>Maximize Driver Growth</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Targeting</strong></td>
+                        <td>Generic (All Jobs)</td>
+                        <td><span class="badge badge-navy">Specialized for Trucking</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reputation</strong></td>
+                        <td>None (Starts over each job)</td>
+                        <td>Portable Reputation Score</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Relationship</strong></td>
+                        <td>Transactional</td>
+                        <td>Community-Driven</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
     </div>
 </section>
 {% endblock %}
