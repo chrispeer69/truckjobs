@@ -9,7 +9,6 @@
       <a href="?tab=credentials" class="tab-link {% if tab == 'credentials' %}active{% endif %}">Credentials</a>
       <a href="?tab=reputation" class="tab-link {% if tab == 'reputation' %}active{% endif %}">Reputation</a>
       <a href="?tab=applications" class="tab-link {% if tab == 'applications' %}active{% endif %}">Applications</a>
-      <a href="?tab=alerts" class="tab-link {% if tab == 'alerts' %}active{% endif %}">Alerts &amp; SMS</a>
     </div>
 
     {% if tab == 'profile' %}
@@ -73,11 +72,11 @@
           <div class="form-group">
             <label class="form-label">Availability</label>
             <select name="availability" class="form-select">
-              <option value="actively_hunting" {% if profile.availability == 'actively_hunting' %}selected{% endif %}>
+              <option value="actively_hunting" {% if profile.availability=='actively_hunting' %}selected{% endif %}>
                 Actively Hunting</option>
-              <option value="employed_open" {% if profile.availability == 'employed_open' %}selected{% endif %}>Employed
+              <option value="employed_open" {% if profile.availability=='employed_open' %}selected{% endif %}>Employed
                 but Open</option>
-              <option value="not_looking" {% if profile.availability == 'not_looking' %}selected{% endif %}>Not Looking
+              <option value="not_looking" {% if profile.availability=='not_looking' %}selected{% endif %}>Not Looking
               </option>
             </select>
           </div>
@@ -119,9 +118,9 @@
           <div class="form-group">
             <label class="form-label">CDL Class</label>
             <select name="cdl_class" class="form-select">
-              <option value="cdl_a" {% if profile.cdl_class == 'cdl_a' %}selected{% endif %}>CDL-A</option>
-              <option value="cdl_b" {% if profile.cdl_class == 'cdl_b' %}selected{% endif %}>CDL-B</option>
-              <option value="no_cdl" {% if profile.cdl_class == 'no_cdl' %}selected{% endif %}>No CDL</option>
+              <option value="cdl_a" {% if profile.cdl_class=='cdl_a' %}selected{% endif %}>CDL-A</option>
+              <option value="cdl_b" {% if profile.cdl_class=='cdl_b' %}selected{% endif %}>CDL-B</option>
+              <option value="no_cdl" {% if profile.cdl_class=='no_cdl' %}selected{% endif %}>No CDL</option>
             </select>
           </div>
           <div class="form-group">
@@ -138,10 +137,10 @@
           <div class="form-group">
             <label class="form-label">Preferred Shift</label>
             <select name="preferred_shift" class="form-select">
-              <option value="day" {% if profile.preferred_shift == 'day' %}selected{% endif %}>Day Shift</option>
-              <option value="night" {% if profile.preferred_shift == 'night' %}selected{% endif %}>Night Shift</option>
-              <option value="rotating" {% if profile.preferred_shift == 'rotating' %}selected{% endif %}>Rotating</option>
-              <option value="flexible" {% if profile.preferred_shift == 'flexible' %}selected{% endif %}>Flexible</option>
+              <option value="day" {% if profile.preferred_shift=='day' %}selected{% endif %}>Day Shift</option>
+              <option value="night" {% if profile.preferred_shift=='night' %}selected{% endif %}>Night Shift</option>
+              <option value="rotating" {% if profile.preferred_shift=='rotating' %}selected{% endif %}>Rotating</option>
+              <option value="flexible" {% if profile.preferred_shift=='flexible' %}selected{% endif %}>Flexible</option>
             </select>
           </div>
           <div class="form-group">
@@ -393,68 +392,6 @@
         {% endfor %}
       </div>
 
-      {% elif tab == 'alerts' %}
-      <div class="two-col mb-32">
-        <div class="card">
-          <h4 style="margin-bottom:16px;">📱 SMS Notifications</h4>
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="update_alerts">
-            <div style="display:flex;flex-direction:column;gap:16px;">
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>Profile views</span>
-                <input type="checkbox" name="sms_profile_views" class="toggle" {% if profile.sms_profile_views %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>Interview requests</span>
-                <input type="checkbox" name="sms_interview_req" class="toggle" {% if profile.sms_interview_req %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>Private offers</span>
-                <input type="checkbox" name="sms_private_offer" class="toggle" {% if profile.sms_private_offer %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>Job match alerts</span>
-                <input type="checkbox" name="sms_job_match" class="toggle" {% if profile.sms_job_match %}checked{% endif %}>
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm mt-16">Save Preferences</button>
-          </form>
-        </div>
-        <div class="card">
-          <h4 style="margin-bottom:16px;">📋 Credential Expiry Alerts</h4>
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="update_alerts">
-            <div style="display:flex;flex-direction:column;gap:16px;">
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>CDL expiry alerts</span>
-                <input type="checkbox" name="alert_cdl_expiry" class="toggle" {% if profile.alert_cdl_expiry %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>DOT medical expiry</span>
-                <input type="checkbox" name="alert_dot_expiry" class="toggle" {% if profile.alert_dot_expiry %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>MVR annual renewal</span>
-                <input type="checkbox" name="alert_mvr_annual" class="toggle" {% if profile.alert_mvr_annual %}checked{% endif %}>
-              </label>
-              <label style="display:flex;align-items:center;justify-content:space-between;">
-                <span>WreckMaster renewal</span>
-                <input type="checkbox" name="alert_wreckmaster" class="toggle" {% if profile.alert_wreckmaster %}checked{% endif %}>
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm mt-16">Save Preferences</button>
-          </form>
-        </div>
-      </div>
-
-      <h4 class="mb-16">📬 SMS Preview</h4>
-      <div style="max-width:400px;">
-        <div class="sms-bubble">Ace Towing in Columbus viewed your profile. Reply Y to share credentials…</div>
-        <div class="sms-bubble">Your DOT medical card expires in 58 days. Renew at any certified clinic…</div>
-        <div class="sms-bubble">MaxFreight Logistics wants to send you a job offer. Reply VIEW…</div>
-      </div>
       {% endif %}
     </div>
 </section>

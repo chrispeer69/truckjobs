@@ -9,8 +9,16 @@
         <p class="text-muted text-lg mt-16 mb-32" style="max-width: 600px; margin-left: auto; margin-right: auto;">Build
             your profile, join the city pool, and let dispatchers come to you.</p>
         <div class="d-flex justify-center gap-16 flex-wrap" style="justify-content: center;">
+            {% if user.is_authenticated %}
+            {% if user.role == 'driver' %}
+            <a href="{% url 'drivers:profile' %}" class="btn btn-primary btn-lg">Go to My Profile</a>
+            {% elif user.role == 'company' %}
+            <a href="{% url 'companies:dashboard' %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+            {% endif %}
+            {% else %}
             <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-lg">Join as Driver</a>
             <a href="{% url 'core:register_company' %}" class="btn btn-secondary btn-lg">Join as Dispatcher</a>
+            {% endif %}
         </div>
         <div class="mt-24">
             <span class="badge badge-green" style="font-size: 1rem; padding: 8px 16px;">Currently Free in MVP: No

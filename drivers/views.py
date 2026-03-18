@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DriverProfile, Credential, DriverDocument
@@ -77,7 +78,7 @@ def driver_profile(request):
                     name=document_name
                 )
                 messages.success(request, 'Document uploaded successfully to your vault.')
-            return redirect('drivers:profile?tab=credentials')
+            return redirect(reverse('drivers:profile') + '?tab=credentials')
 
         elif action == 'handle_access_request':
             request_id = request.POST.get('request_id')
@@ -91,7 +92,7 @@ def driver_profile(request):
                     send_access_granted_mail(profile, access_req.dispatcher)
                 else:
                     messages.success(request, 'Access request rejected.')
-            return redirect('drivers:profile?tab=credentials')
+            return redirect(reverse('drivers:profile') + '?tab=credentials')
 
         elif action == 'upload_credential':
             cred_type = request.POST.get('credential_type', '')
@@ -105,7 +106,7 @@ def driver_profile(request):
                     cred.status = 'pending'
                     cred.save()
                 messages.success(request, f'Credential marked as uploaded — pending review.')
-            return redirect('drivers:profile?tab=credentials')
+            return redirect(reverse('drivers:profile') + '?tab=credentials')
 
     # Build context
     credentials = []
