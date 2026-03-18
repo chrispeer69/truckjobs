@@ -27,6 +27,31 @@
     </div>
 </section>
 
+<!-- Stats Bar -->
+<section class="stats-bar">
+    <div class="container text-center">
+        <div class="d-flex justify-around flex-wrap gap-24"
+            style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 24px;">
+            <div class="stat-item">
+                <span class="stat-number">1,200+</span>
+                <span class="stat-label">Verified Drivers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">450+</span>
+                <span class="stat-label">Active Dispatchers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">85+</span>
+                <span class="stat-label">City Driver Pools</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">Direct Support</span>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Who It's For -->
 <section class="section" style="background: var(--surface2);">
     <div class="container">
@@ -95,8 +120,76 @@
             <div class="card text-center">
                 <div style="font-size: 2.5rem; margin-bottom: 16px;">🔒</div>
                 <h4>Secure Verification</h4>
-                <p class="text-muted text-sm mt-8">Secure credential vault. <br><em style="font-size: 0.8rem;">(60 Days
-                        alert - Not needed yet for MVP)</em></p>
+                <p class="text-muted text-sm mt-8">Secure credential vault.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="section" style="background: var(--surface2);">
+    <div class="container">
+        <div class="text-center mb-48">
+            <span class="eyebrow">Pricing Plans</span>
+            <h2>Simple, Transparent Pricing</h2>
+            <p class="text-muted mt-12">The job board built for drivers. Currently free during MVP.</p>
+        </div>
+
+        <div class="three-col mt-48"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <!-- For Drivers -->
+            <div class="card pricing-card" style="border-top: 4px solid var(--green);">
+                <div class="pricing-pill">MOST POPULAR</div>
+                <h3>For Drivers</h3>
+                <div class="price">$0<span class="price-period">/forever</span></div>
+                <p class="text-sm text-muted">Join the pool and get discovered.</p>
+                <ul>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Create Professional Profile</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Join Unlimited City Pools</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Reputation Tracking</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Secure Credential Vault</li>
+                </ul>
+                <a href="{% url 'core:register_driver' %}" class="btn btn-green btn-block mt-24">Join for Free</a>
+            </div>
+
+            <!-- Basic Dispatcher -->
+            <div class="card pricing-card" style="border-top: 4px solid var(--brand);">
+                <h3>Basic Dispatcher</h3>
+                <div class="price">$0<span class="price-period">/during mvp</span></div>
+                <p class="text-sm text-muted">Search and hire talent directly.</p>
+                <ul>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Search All City Pools</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Request Credential Access</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Post Basic Job Listings</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Hiring Dashboard</li>
+                </ul>
+                <a href="{% url 'core:register_company' %}" class="btn btn-primary btn-block mt-24">Start Searching</a>
+            </div>
+
+            <!-- Pro Dispatcher -->
+            <div class="card pricing-card" style="border-top: 4px solid var(--navy);">
+                <div class="badge badge-navy" style="margin-bottom: 12px;">COMING SOON</div>
+                <h3>Pro Dispatcher</h3>
+                <div class="price">$49<span class="price-period">/month</span></div>
+                <p class="text-sm text-muted">Advanced tools for large fleets.</p>
+                <ul>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Featured Job Listings</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Advanced Pipeline CRM</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Background Check Integration</li>
+                </ul>
+                <button class="btn btn-ghost btn-block mt-24 disabled" disabled
+                    style="opacity: 0.5; cursor: not-allowed;">Enterprise Only</button>
             </div>
         </div>
     </div>
