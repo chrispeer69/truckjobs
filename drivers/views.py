@@ -131,6 +131,7 @@ def driver_profile(request):
         'access_requests': access_requests,
         'reviews': reviews,
         'applications': applications,
+        'city_pools': CityPool.objects.filter(is_active=True),
     }
     return render(request, 'drivers/profile.html', context)
 

@@ -84,7 +84,8 @@ def register_driver(request):
         messages.success(request, 'Welcome! Complete your profile to get started.')
         return redirect('drivers:profile')
 
-    return render(request, 'registration/register_driver.html')
+    city_pools = CityPool.objects.filter(is_active=True)
+    return render(request, 'registration/register_driver.html', {'city_pools': city_pools})
 
 
 def register_company(request):
@@ -138,4 +139,5 @@ def register_company(request):
         messages.success(request, f'Welcome to DrivingJobs.online! Post your first job to start hiring.')
         return redirect('companies:post_job')
 
-    return render(request, 'registration/register_company.html')
+    city_pools = CityPool.objects.filter(is_active=True)
+    return render(request, 'registration/register_company.html', {'city_pools': city_pools})

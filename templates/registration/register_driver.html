@@ -46,11 +46,17 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label" for="city">City</label>
-                        <input type="text" id="city" name="city" class="form-input" placeholder="Columbus">
+                        <select id="city" name="city" class="form-select" required>
+                            <option value="">Select a City</option>
+                            {% for pool in city_pools %}
+                            <option value="{{ pool.name }}">{{ pool.name }}, {{ pool.state }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="state">State</label>
-                        <input type="text" id="state" name="state" class="form-input" maxlength="2" placeholder="OH">
+                        <input type="text" id="state" name="state" class="form-input" maxlength="2" placeholder="OH"
+                            required>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg mt-8">Create My Driver Profile</button>
