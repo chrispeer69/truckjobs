@@ -47,8 +47,7 @@
             <div class="avatar avatar-sm avatar-orange">{{ app.driver.initials }}</div>
             <div>
               <div class="fw-600 text-sm">{{ app.driver.user.get_full_name }}</div>
-              <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience
-                }}yr</div>
+              <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }}yr</div>
             </div>
           </div>
           <div class="text-xs text-hint mt-4">{{ app.job.title }}</div>
@@ -57,44 +56,38 @@
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="reviewed">
-              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Reviewed
-                →</button>
+              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Reviewed →</button>
             </form>
             {% endif %}
             {% if stage_key == 'reviewed' %}
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="applied">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">←
-                Applied</button>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Applied</button>
             </form>
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="interview">
-              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Interview
-                →</button>
+              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Interview →</button>
             </form>
             {% endif %}
             {% if stage_key == 'interview' %}
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="reviewed">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">←
-                Reviewed</button>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Reviewed</button>
             </form>
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="hired">
-              <button type="submit" class="btn btn-green btn-sm" style="font-size:0.7rem;padding:3px 8px;">Hire
-                ✓</button>
+              <button type="submit" class="btn btn-green btn-sm" style="font-size:0.7rem;padding:3px 8px;">Hire ✓</button>
             </form>
             {% endif %}
             {% if stage_key == 'hired' %}
             <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
               {% csrf_token %}
               <input type="hidden" name="stage" value="interview">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">←
-                Interview</button>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Interview</button>
             </form>
             {% endif %}
           </div>
@@ -141,8 +134,7 @@
         <span class="badge badge-amber mt-4" style="align-self:flex-end;">⏳ Access Pending</span>
         {% elif driver.access_request.status == 'approved' %}
         <span class="badge badge-green mt-4" style="align-self:flex-end;">✓ Access Granted</span>
-        <a href="{% url 'companies:view_driver_documents' driver.id %}" class="btn btn-ghost btn-sm"
-          style="font-size:0.75rem;">View Documents</a>
+        <a href="{% url 'companies:view_driver_documents' driver.id %}" class="btn btn-primary btn-sm" style="font-size:0.75rem;">View Profile & Documents</a>
         {% else %}
         <span class="badge badge-red mt-4" style="align-self:flex-end;">✗ Access Denied</span>
         {% endif %}
@@ -173,8 +165,7 @@
       <div class="avatar avatar-sm avatar-orange">{{ cred.driver.initials }}</div>
       <div style="flex:1;">
         <div class="fw-600">{{ cred.driver.user.get_full_name }}</div>
-        <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M d,
-          Y" }}</div>
+        <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M d, Y" }}</div>
       </div>
       <button class="btn btn-ghost btn-sm" disabled>Remind Driver</button>
     </div>

@@ -59,7 +59,9 @@
             <div class="pool-row">
                 <div class="pool-dot {% if pool.is_active %}active{% else %}coming-soon{% endif %}"></div>
                 <div class="pool-name">
-                    {{ pool.name }}, {{ pool.state }}
+                    <a href="{% url 'companies:dashboard' %}?tab=pool" class="text-brand">
+                        {{ pool.name }}, {{ pool.state }}
+                    </a>
                     {% if user_pool and user_pool.pk == pool.pk %}<span class="badge badge-orange"
                         style="margin-left:8px;">Your pool</span>{% endif %}
                 </div>

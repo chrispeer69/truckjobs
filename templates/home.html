@@ -3,11 +3,18 @@
 
 {% block content %}
 <!-- Hero -->
-<section class="hero text-center" style="padding: 80px 20px;">
+<section class="hero text-center" style="padding: 100px 20px 80px;">
     <div class="container">
-        <h1>The Premier Job Board for Truck Drivers</h1>
-        <p class="text-muted text-lg mt-16 mb-32" style="max-width: 600px; margin-left: auto; margin-right: auto;">Build
-            your profile, join the city pool, and let dispatchers come to you.</p>
+        <span class="eyebrow"
+            style="color: var(--brand); letter-spacing: 2px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase;">Tow
+            Truck & Box Truck Jobs — Industry Specific</span>
+        <h1
+            style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: clamp(3rem, 7vw, 5rem); line-height: 1.1; margin-top: 16px; margin-bottom: 32px; text-transform: none;">
+            The job board built <br>
+            for <span style="color: var(--brand);">drivers,</span> <br>
+            not algorithms.
+        </h1>
+
         <div class="d-flex justify-center gap-16 flex-wrap" style="justify-content: center;">
             {% if user.is_authenticated %}
             {% if user.role == 'driver' %}
@@ -19,12 +26,8 @@
             <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-lg">Join as Driver</a>
             <a href="{% url 'core:register_company' %}" class="btn btn-secondary btn-lg">Join as Dispatcher</a>
             {% endif %}
+
         </div>
-        <div class="mt-24">
-            <span class="badge badge-green" style="font-size: 1rem; padding: 8px 16px;">Currently Free in MVP: No
-                Payment Yet</span>
-        </div>
-    </div>
 </section>
 
 
@@ -71,7 +74,7 @@
                 <p class="text-muted text-sm mt-8">Build a portable reputation that stays with you across employers.</p>
             </div>
             <div class="card text-center">
-                <div style="font-size: 2.5rem; margin-bottom: 16px;">🤫</div>
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">👁</div>
                 <h4>Passive Talent Mode</h4>
                 <p class="text-muted text-sm mt-8">Open to work but currently employed? Get private offers without risk.
                 </p>
@@ -90,8 +93,7 @@
                 <div style="font-size: 2.5rem; margin-bottom: 16px;">✉️</div>
                 <h4>Mail Workflow Setup</h4>
                 <p class="text-muted text-sm mt-8">Automated email handshakes for credential access and hiring.</p>
-                <div class="badge badge-amber mt-16" style="display: inline-block;">Alert: No Messages Yet, Just Mail
-                    Setup</div>
+
             </div>
             <div class="card text-center">
                 <div style="font-size: 2.5rem; margin-bottom: 16px;">🔒</div>
@@ -108,7 +110,7 @@
         <div class="text-center mb-48">
             <span class="eyebrow">Pricing Plans</span>
             <h2>Simple, Transparent Pricing</h2>
-            <p class="text-muted mt-12">The job board built for drivers. Currently free during MVP.</p>
+            <p class="text-muted mt-12">The job board built for drivers. No hidden fees, just direct connections.</p>
         </div>
 
         <div class="three-col mt-48"
@@ -120,10 +122,14 @@
                 <div class="price">$0<span class="price-period">/forever</span></div>
                 <p class="text-sm text-muted">Join the pool and get discovered.</p>
                 <ul>
-                    <li>Create Professional Profile</li>
-                    <li>Join Unlimited City Pools</li>
-                    <li>Reputation Tracking</li>
-                    <li>Secure Credential Vault</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Create Professional Profile</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Join Unlimited City Pools</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Reputation Tracking</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Secure Credential Vault</li>
                 </ul>
                 <a href="{% url 'core:register_driver' %}" class="btn btn-green btn-block mt-24">Join for Free</a>
             </div>
@@ -131,13 +137,17 @@
             <!-- Basic Dispatcher -->
             <div class="card pricing-card" style="border-top: 4px solid var(--brand);">
                 <h3>Basic Dispatcher</h3>
-                <div class="price">$0<span class="price-period">/during mvp</span></div>
+                <div class="price">$0<span class="price-period">/month</span></div>
                 <p class="text-sm text-muted">Search and hire talent directly.</p>
                 <ul>
-                    <li>Search All City Pools</li>
-                    <li>Request Credential Access</li>
-                    <li>Post Basic Job Listings</li>
-                    <li>Hiring Dashboard</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Search All City Pools</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Request Credential Access</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Post Basic Job Listings</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Hiring Dashboard</li>
                 </ul>
                 <a href="{% url 'core:register_company' %}" class="btn btn-primary btn-block mt-24">Start Searching</a>
             </div>
@@ -149,9 +159,12 @@
                 <div class="price">$49<span class="price-period">/month</span></div>
                 <p class="text-sm text-muted">Advanced tools for large fleets.</p>
                 <ul>
-                    <li>Featured Job Listings</li>
-                    <li>Advanced Pipeline CRM</li>
-                    <li>Background Check Integration</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Featured Job Listings</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Advanced Pipeline CRM</li>
+                    <li style="list-style: none; margin: 8px 0; display: flex; align-items: center; gap: 8px;"><span
+                            style="color: var(--green); font-weight: bold;">✓</span> Background Check Integration</li>
                 </ul>
                 <button class="btn btn-ghost btn-block mt-24 disabled" disabled
                     style="opacity: 0.5; cursor: not-allowed;">Enterprise Only</button>
@@ -182,7 +195,7 @@
                     <tr>
                         <td><strong>Pricing</strong></td>
                         <td>Expensive Pay-Per-Click</td>
-                        <td><span class="badge badge-green">Free during MVP</span></td>
+                        <td><span class="badge badge-green">Free Access</span></td>
                     </tr>
                     <tr>
                         <td><strong>Focus</strong></td>
