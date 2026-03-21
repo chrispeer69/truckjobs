@@ -18,7 +18,8 @@
             <div class="profile-info" style="flex:1;">
                 <h2>{{ profile.user.get_full_name }}</h2>
                 <div class="text-muted">
-                    {{ profile.get_cdl_class_display }} · {{ profile.years_experience }} years experience · {{           profile.city }}
+                    {{ profile.get_cdl_class_display }} · {{ profile.years_experience }} years experience · {{
+                    profile.city }}
                 </div>
                 <div class="profile-badges">
                     {% if profile.is_identity_verified %}
@@ -76,9 +77,11 @@
                     <div class="form-group">
                         <label class="form-label">Availability</label>
                         <select name="availability" class="form-select">
-                            <option value="actively_hunting" {% if profile.availability == 'actively_hunting' %}selected{% endif %}>Actively Hunting</option>
-                            <option value="employed_open" {% if profile.availability == 'employed_open' %}selected{% endif %}>Employed but Open</option>
-                            <option value="not_looking" {% if profile.availability == 'not_looking' %}selected{% endif %}>
+                            <option value="actively_hunting" {% if profile.availability=='actively_hunting' %}selected{%
+                                endif %}>Actively Hunting</option>
+                            <option value="employed_open" {% if profile.availability=='employed_open' %}selected{% endif
+                                %}>Employed but Open</option>
+                            <option value="not_looking" {% if profile.availability=='not_looking' %}selected{% endif %}>
                                 Not Looking</option>
                         </select>
                     </div>
@@ -120,9 +123,9 @@
                     <div class="form-group">
                         <label class="form-label">CDL Class</label>
                         <select name="cdl_class" class="form-select">
-                            <option value="cdl_a" {% if profile.cdl_class == 'cdl_a' %}selected{% endif %}>CDL-A</option>
-                            <option value="cdl_b" {% if profile.cdl_class == 'cdl_b' %}selected{% endif %}>CDL-B</option>
-                            <option value="no_cdl" {% if profile.cdl_class == 'no_cdl' %}selected{% endif %}>No CDL
+                            <option value="cdl_a" {% if profile.cdl_class=='cdl_a' %}selected{% endif %}>CDL-A</option>
+                            <option value="cdl_b" {% if profile.cdl_class=='cdl_b' %}selected{% endif %}>CDL-B</option>
+                            <option value="no_cdl" {% if profile.cdl_class=='no_cdl' %}selected{% endif %}>No CDL
                             </option>
                         </select>
                     </div>
@@ -141,13 +144,13 @@
                     <div class="form-group">
                         <label class="form-label">Preferred Shift</label>
                         <select name="preferred_shift" class="form-select">
-                            <option value="day" {% if profile.preferred_shift == 'day' %}selected{% endif %}>Day Shift
+                            <option value="day" {% if profile.preferred_shift=='day' %}selected{% endif %}>Day Shift
                             </option>
-                            <option value="night" {% if profile.preferred_shift == 'night' %}selected{% endif %}>Night
+                            <option value="night" {% if profile.preferred_shift=='night' %}selected{% endif %}>Night
                                 Shift</option>
-                            <option value="rotating" {% if profile.preferred_shift == 'rotating' %}selected{% endif %}>
+                            <option value="rotating" {% if profile.preferred_shift=='rotating' %}selected{% endif %}>
                                 Rotating</option>
-                            <option value="flexible" {% if profile.preferred_shift == 'flexible' %}selected{% endif %}>
+                            <option value="flexible" {% if profile.preferred_shift=='flexible' %}selected{% endif %}>
                                 Flexible</option>
                         </select>
                     </div>
@@ -188,7 +191,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" style="display:flex;align-items:center;gap:8px;">
-                        <input type="checkbox" name="willing_relocate" {% if profile.willing_relocate %}checked{% endif %}> Willing to relocate
+                        <input type="checkbox" name="willing_relocate" {% if profile.willing_relocate %}checked{% endif
+                            %}> Willing to relocate
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary">Save Profile</button>
@@ -225,7 +229,7 @@
                     <form method="post" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="handle_access_request">
-                        <input type="hidden" name_id" value="{{ req.id }}">
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
                         <input type="hidden" name="verdict" value="approved">
                         <button type="submit" class="btn btn-green btn-sm">Grant Access</button>
                     </form>
@@ -281,7 +285,8 @@
                             <input type="date" name="expiry_date" class="form-input text-xs" style="padding: 4px;"
                                 value="{{ cred.expiry_date|date:'Y-m-d' }}">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-xs">{% if cred.file %}Update{% else %}Upload{% endif %}</button>
+                        <button type="submit" class="btn btn-primary btn-xs">{% if cred.file %}Update{% else %}Upload{%
+                            endif %}</button>
                     </form>
                 </div>
             </div>
@@ -418,7 +423,7 @@
                     </div>
                 </div>
 
-                {% if app.messages.all or app.stage == 'interview' %}
+                {% if app.messages.all or app.stage == 'interview' or app.stage == 'invited' %}
                 <div class="messages mt-16 w-100 p-16 card" style="background:var(--surface2); width:100%;">
                     <h5 class="mb-8">Messages & Correspondence</h5>
                     {% for msg in app.messages.all %}
