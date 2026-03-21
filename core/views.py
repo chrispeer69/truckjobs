@@ -240,6 +240,6 @@ def set_new_password(request):
                 del request.session['otp_verified']
                 
             messages.success(request, 'Password updated successfully! You can now log in.')
-            return redirect('login')
+            return redirect('core:login')
             
     return render(request, 'core/set_new_password.html')
