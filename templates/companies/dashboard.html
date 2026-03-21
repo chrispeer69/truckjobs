@@ -84,7 +84,7 @@
         <div class="avatar avatar-sm avatar-orange">{{ cred.driver.initials }}</div>
         <div style="flex:1;">
           <div class="fw-600">{{ cred.driver.user.get_full_name }}</div>
-          <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M    d, Y" }}</div>
+          <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M  d, Y" }}</div>
         </div>
         <button class="btn btn-ghost btn-sm" disabled>Remind Driver</button>
       </div>

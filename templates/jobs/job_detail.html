@@ -17,7 +17,7 @@
                 <div style="flex:1;">
                     <h1 style="font-size:2rem;margin-bottom:4px;">{{ job.title }}</h1>
                     <a href="{% url 'companies:company_profile_public' job.company.id %}" class="text-muted"
-                        style="font-size:1.1rem; text-decoration:none; color:inherit;">{{ job.company.company_name             }}</a>
+                        style="font-size:1.1rem; text-decoration:none; color:inherit;">{{ job.company.company_name       }}</a>
                     <div class="text-hint text-sm mt-8">📍 {{ job.location }} · {{ job.time_since_posted }}</div>
                 </div>
                 <div class="job-card-pay {% if job.category == 'tow_truck' %}tow{% else %}box{% endif %}"

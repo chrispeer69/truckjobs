@@ -14,7 +14,7 @@
         </div>
 
         <div class="tab-bar mb-24">
-            <a href="?tab=search" class="tab-link {% if tab == 'search' %}active{% endif %}">Search / City Pool ({{     pipeline.search|length }})</a>
+            <a href="?tab=search" class="tab-link {% if tab == 'search' %}active{% endif %}">Search / City Pool ({{         pipeline.search|length }})</a>
             <a href="?tab=candidates" class="tab-link {% if tab == 'candidates' %}active{% endif %}">Review Candidates
                 ({{ pipeline.candidates|length }})</a>
             <a href="?tab=interviewing" class="tab-link {% if tab == 'interviewing' %}active{% endif %}">Interviewing
@@ -28,8 +28,8 @@
                 <div class="avatar avatar-md avatar-orange">{{ driver.initials }}</div>
                 <div style="flex:1;">
                     <a href="{% url 'drivers:driver_profile_public' driver.id %}" class="fw-600 text-lg"
-                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{       driver.user.get_full_name }}</a>
-                    <div class="text-sm text-muted mb-8">{{ driver.get_cdl_class_display }} · {{ driver.years_experience       }}yr</div>
+                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{             driver.user.get_full_name }}</a>
+                    <div class="text-sm text-muted mb-8">{{ driver.get_cdl_class_display }} · {{ driver.years_experience             }}yr</div>
                     <div class="text-sm" style="line-height:1.5;">
                         {{ driver.bio|truncatechars:200 }}
                     </div>
@@ -76,15 +76,41 @@
                         <span class="badge badge-navy">Applied</span>
                         {% endif %}
                     </div>
-                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{       app.driver.years_experience }}yr</div>
+                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{             app.driver.years_experience }}yr</div>
                     <div class="text-sm mb-12" style="line-height:1.5;">
                         {{ app.driver.bio|truncatechars:200 }}
                     </div>
+
+                    {% if app.messages.all %}
+                    <div class="messages mt-16 mb-16 p-12 card"
+                        style="background:var(--surface2); border:1px solid var(--border);">
+                        <div class="text-xs fw-600 mb-8 text-muted uppercase">Message History</div>
+                        {% for msg in app.messages.all %}
+                        <div class="mb-4 p-8"
+                            style="background:var(--surface); border-radius:4px; {% if msg.sender_is_company %}border-right:3px solid var(--brand); text-align:right;{% else %}border-left:3px solid var(--gray);{% endif %}">
+                            <div class="text-xs text-muted mb-2">
+                                {% if msg.sender_is_company %}You{% else %}{{ app.driver.user.get_full_name }}{% endif                 %} - {{ msg.created_at|date:"M d, g:i a" }}
+                            </div>
+                            <div class="text-sm">{{ msg.content }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                     <div class="d-flex gap-8 mt-12">
                         <button type="button" class="btn btn-secondary btn-sm"
                             onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='block'">Enquire
                             (Message)</button>
+
+                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="request_credentials">
+                            {% if app.driver.access_request %}
+                            <button type="button" class="btn btn-ghost btn-sm" disabled>Shared: {{                 app.driver.access_request.get_status_display }}</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-secondary btn-sm">📄 Request Credentials</button>
+                            {% endif %}
+                        </form>
 
                         <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
                             {% csrf_token %}
@@ -136,11 +162,27 @@
                 <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
                 <div style="flex:1;">
                     <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" class="fw-600 text-lg"
-                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{       app.driver.user.get_full_name }}</a>
-                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{       app.driver.years_experience }}yr</div>
+                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{             app.driver.user.get_full_name }}</a>
+                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{             app.driver.years_experience }}yr</div>
                     <div class="text-sm mb-12" style="line-height:1.5;">
                         {{ app.driver.bio|truncatechars:200 }}
                     </div>
+
+                    {% if app.messages.all %}
+                    <div class="messages mt-16 mb-16 p-12 card"
+                        style="background:var(--surface2); border:1px solid var(--border);">
+                        <div class="text-xs fw-600 mb-8 text-muted uppercase">Message History</div>
+                        {% for msg in app.messages.all %}
+                        <div class="mb-4 p-8"
+                            style="background:var(--surface); border-radius:4px; {% if msg.sender_is_company %}border-right:3px solid var(--brand); text-align:right;{% else %}border-left:3px solid var(--gray);{% endif %}">
+                            <div class="text-xs text-muted mb-2">
+                                {% if msg.sender_is_company %}You{% else %}{{ app.driver.user.get_full_name }}{% endif                 %} - {{ msg.created_at|date:"M d, g:i a" }}
+                            </div>
+                            <div class="text-sm">{{ msg.content }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                     <div class="d-flex gap-8 mt-12 flex-wrap">
                         <button type="button" class="btn btn-secondary btn-sm"
