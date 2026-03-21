@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} Dashboard{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container">
+        <div class="d-flex align-center justify-between mb-24">
+            <div>
+                <a href="{% url 'companies:dashboard' %}" class="text-sm text-brand mb-8 d-block">← Back to
+                    Dashboard</a>
+                <span class="eyebrow">{{ profile.company_name }}</span>
+                <h2>{{ job.title }} - Pipeline</h2>
+            </div>
+        </div>
+
+        <div class="tab-bar mb-24">
+            <a href="?tab=search" class="tab-link {% if tab == 'search' %}active{% endif %}">Search / City Pool ({{     pipeline.search|length }})</a>
+            <a href="?tab=candidates" class="tab-link {% if tab == 'candidates' %}active{% endif %}">Review Candidates
+                ({{ pipeline.candidates|length }})</a>
+            <a href="?tab=interviewing" class="tab-link {% if tab == 'interviewing' %}active{% endif %}">Interviewing
+                ({{ pipeline.interviewing|length }})</a>
+        </div>
+
+        <div class="pipeline-list">
+            {% if tab == 'search' %}
+            {% for driver in pipeline.search %}
+            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+                <div class="avatar avatar-md avatar-orange">{{ driver.initials }}</div>
+                <div style="flex:1;">
+                    <a href="{% url 'drivers:driver_profile_public' driver.id %}" class="fw-600 text-lg"
+                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{       driver.user.get_full_name }}</a>
+                    <div class="text-sm text-muted mb-8">{{ driver.get_cdl_class_display }} · {{ driver.years_experience       }}yr</div>
+                    <div class="text-sm" style="line-height:1.5;">
+                        {{ driver.bio|truncatechars:200 }}
+                    </div>
+                    <div class="d-flex gap-8 mt-12 flex-wrap">
+                        {% for spec in driver.specialty_list %}
+                        <span class="badge badge-orange" style="font-size:0.75rem;">{{ spec }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div style="min-width:140px; text-align:right;">
+                    {% if driver.availability == 'actively_hunting' %}
+                    <span class="badge badge-green mb-12" style="display:inline-block;">Actively Looking</span>
+                    {% elif driver.availability == 'employed_open' %}
+                    <span class="badge badge-navy mb-12" style="display:inline-block;">Employed · Open</span>
+                    {% else %}
+                    <span class="badge badge-gray mb-12" style="display:inline-block;">Not Looking</span>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'companies:job_dashboard' job.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="invite">
+                        <input type="hidden" name="driver_id" value="{{ driver.id }}">
+                        <button type="submit" class="btn btn-primary btn-block">Invite to Job</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card text-center text-muted" style="padding:48px;">
+                No potential drivers found in the {{ job.location }} city pool right now.
+            </div>
+            {% endfor %}
+
+            {% elif tab == 'candidates' %}
+            {% for app in pipeline.candidates %}
+            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+                <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
+                <div style="flex:1;">
+                    <div class="d-flex align-center gap-12 mb-4">
+                        <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" class="fw-600 text-lg"
+                            style="text-decoration:none; color:var(--text);">{{ app.driver.user.get_full_name }}</a>
+                        {% if app.stage == 'invited' %}
+                        <span class="badge badge-amber">Invite Pending</span>
+                        {% else %}
+                        <span class="badge badge-navy">Applied</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{       app.driver.years_experience }}yr</div>
+                    <div class="text-sm mb-12" style="line-height:1.5;">
+                        {{ app.driver.bio|truncatechars:200 }}
+                    </div>
+
+                    <div class="d-flex gap-8 mt-12">
+                        <button type="button" class="btn btn-secondary btn-sm"
+                            onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='block'">Enquire
+                            (Message)</button>
+
+                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="hired">
+                            <button type="submit" class="btn btn-green btn-sm">Hire</button>
+                        </form>
+
+                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="rejected">
+                            <button type="submit" class="btn btn-red btn-sm">Reject</button>
+                        </form>
+                    </div>
+
+                    <!-- Ask Question Modal -->
+                    <div id="ask-question-modal-{{ app.pk }}" class="modal"
+                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                        <div class="modal-content card"
+                            style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
+                            <h3 class="mb-16">Message {{ app.driver.user.get_full_name }}</h3>
+                            <p class="text-sm text-muted mb-16">Sending a message will move this candidate to the
+                                Interviewing stage.</p>
+                            <form method="post" action="{% url 'companies:update_stage' app.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="ask_question">
+                                <div class="form-group">
+                                    <textarea name="content" class="form-textarea" rows="4" maxlength="600"
+                                        placeholder="Type your message here..." required></textarea>
+                                </div>
+                                <div class="d-flex gap-8 justify-end mt-16">
+                                    <button type="button" class="btn btn-ghost"
+                                        onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='none'">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card text-center text-muted" style="padding:48px;">
+                No candidates to review at the moment.
+            </div>
+            {% endfor %}
+
+            {% elif tab == 'interviewing' %}
+            {% for app in pipeline.interviewing %}
+            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+                <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
+                <div style="flex:1;">
+                    <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" class="fw-600 text-lg"
+                        style="text-decoration:none; color:var(--text); display:block; margin-bottom:4px;">{{       app.driver.user.get_full_name }}</a>
+                    <div class="text-sm text-muted mb-8">{{ app.driver.get_cdl_class_display }} · {{       app.driver.years_experience }}yr</div>
+                    <div class="text-sm mb-12" style="line-height:1.5;">
+                        {{ app.driver.bio|truncatechars:200 }}
+                    </div>
+
+                    <div class="d-flex gap-8 mt-12 flex-wrap">
+                        <button type="button" class="btn btn-secondary btn-sm"
+                            onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='block'">Send
+                            Message</button>
+
+                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="request_credentials">
+                            {% if app.driver.access_request %}
+                            {% if app.driver.access_request.status == 'pending' %}
+                            <button type="submit" class="btn btn-secondary btn-sm" disabled>⏳ Access Pending</button>
+                            {% elif app.driver.access_request.status == 'approved' %}
+                            <a href="{% url 'companies:view_driver_documents' app.driver.id %}"
+                                class="btn btn-primary btn-sm">View Documents</a>
+                            {% else %}
+                            <button type="submit" class="btn btn-red btn-sm" disabled>✗ Access Denied</button>
+                            {% endif %}
+                            {% else %}
+                            <button type="submit" class="btn btn-secondary btn-sm">📄 Request Credentials</button>
+                            {% endif %}
+                        </form>
+
+                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="hired">
+                            <button type="submit" class="btn btn-green btn-sm">Hire</button>
+                        </form>
+                    </div>
+
+                    <!-- Ask Question Modal -->
+                    <div id="ask-question-modal-{{ app.pk }}" class="modal"
+                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                        <div class="modal-content card"
+                            style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
+                            <h3 class="mb-16">Message {{ app.driver.user.get_full_name }}</h3>
+                            <form method="post" action="{% url 'companies:update_stage' app.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="ask_question">
+                                <div class="form-group">
+                                    <textarea name="content" class="form-textarea" rows="4" maxlength="600"
+                                        placeholder="Type your message here..." required></textarea>
+                                </div>
+                                <div class="d-flex gap-8 justify-end mt-16">
+                                    <button type="button" class="btn btn-ghost"
+                                        onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='none'">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card text-center text-muted" style="padding:48px;">
+                No candidates are currently in the interviewing stage.
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

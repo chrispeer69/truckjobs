@@ -59,4 +59,22 @@ def send_hire_mail(dispatcher, driver):
         fail_silently=False,
     )
 
+def send_password_reset_otp(user, otp_code):
+    subject = "Your Password Reset Code"
     
+    message = (
+        f"Hi {user.first_name or user.username},\n\n"
+        f"You requested to reset your password on DrivingJobs.online.\n\n"
+        f"Your verification code is: {otp_code}\n\n"
+        f"This code will expire in 15 minutes.\n\n"
+        f"If you did not request a password reset, you can safely ignore this email.\n\n"
+        f"Thanks,\nThe DrivingJobs Team"
+    )
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )

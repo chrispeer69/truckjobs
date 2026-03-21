@@ -19,16 +19,10 @@ def dashboard(request):
     profile = request.user.company_profile
     tab = request.GET.get('tab', 'pipeline')
 
-    # Pipeline data
-    company_jobs = profile.job_listings.all()
+    # My Jobs data
+    from django.db.models import Count
+    company_jobs = profile.job_listings.annotate(applicant_count=Count('applications')).order_by('-created_at')
     applications = JobApplication.objects.filter(job__company=profile).select_related('driver', 'driver__user', 'job')
-
-    pipeline = {
-        'applied': applications.filter(stage='applied'),
-        'reviewed': applications.filter(stage='reviewed'),
-        'interview': applications.filter(stage='interview'),
-        'hired': applications.filter(stage='hired'),
-    }
 
     # City Pool
     pool_drivers = []
@@ -74,7 +68,7 @@ def dashboard(request):
     context = {
         'profile': profile,
         'tab': tab,
-        'pipeline': pipeline,
+        'company_jobs': company_jobs,
         'pool_drivers': pool_drivers,
         'cred_alerts': cred_alerts,
         'request_map': request_map,
@@ -148,20 +142,150 @@ def company_jobs(request):
 
 @login_required
 def update_stage(request, app_id):
+    if request.method != 'POST':
+        return redirect('/company/dashboard/')
+
     if request.user.role != 'company':
+        messages.error(request, 'Not authorized.')
         return redirect('/')
 
     application = get_object_or_404(JobApplication, pk=app_id, job__company=request.user.company_profile)
+    action = request.POST.get('action')
+    new_stage = request.POST.get('stage')
 
-    if request.method == 'POST':
-        new_stage = request.POST.get('stage', '')
-        valid_stages = ['applied', 'reviewed', 'interview', 'hired']
-        if new_stage in valid_stages:
-            application.stage = new_stage
+    if action == 'ask_question':
+        content = request.POST.get('content', '').strip()
+        if content:
+            from jobs.models import ApplicationMessage
+            ApplicationMessage.objects.create(
+                application=application,
+                sender_is_company=True,
+                content=content
+            )
+            # Move to interview stage if they asked a question
+            if application.stage in ['applied', 'reviewed', 'invited']:
+                application.stage = 'interview'
             application.save()
-            messages.success(request, f'Moved {application.driver.user.get_full_name()} to {application.get_stage_display()}.')
+            messages.success(request, f'Question sent to {application.driver.user.get_full_name()}.')
+    
+    elif action == 'request_credentials':
+        # Create a pending access request if it doesn't exist
+        req, created = CredentialAccessRequest.objects.get_or_create(
+            dispatcher=request.user.company_profile,
+            driver=application.driver,
+            defaults={'status': 'pending'}
+        )
+        if created:
+            send_access_request_mail(request.user.company_profile, application.driver)
+        
+        if application.stage in ['applied', 'reviewed']:
+                application.stage = 'interview'
+        application.save()
+        messages.success(request, f'Credential access requested from {application.driver.user.get_full_name()}.')
+        
+    elif new_stage in dict(JobApplication.STAGE_CHOICES):
+        application.stage = new_stage
+        application.save()
+        messages.success(request, f'Application moved to {application.get_stage_display()}.')
+        
+        if new_stage == 'hired':
+            from core.emails import send_hire_mail
+            send_hire_mail(request.user.company_profile, application.driver)
 
+    return redirect(f'/company/job/{application.job.pk}/dashboard/')
+
+
+@login_required
+def job_dashboard(request, job_id):
+    if request.user.role != 'company':
+        messages.error(request, 'This page is only for companies.')
+        return redirect('/')
+        
+    profile = request.user.company_profile
+    job = get_object_or_404(JobListing, pk=job_id, company=profile)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'invite':
+            driver_id = request.POST.get('driver_id')
+            driver = get_object_or_404(DriverProfile, pk=driver_id)
+            app, created = JobApplication.objects.get_or_create(
+                job=job,
+                driver=driver,
+                defaults={'stage': 'invited'}
+            )
+            if app.stage in ['withdrawn', 'rejected']:
+                app.stage = 'invited'
+                app.save()
+            messages.success(request, f'Invited {driver.user.get_full_name()} to apply for this job.')
+            return redirect('companies:job_dashboard', job_id=job.pk)
+            
+    applications = JobApplication.objects.filter(job=job).select_related('driver', 'driver__user')
+    
+    # Pool drivers for Search tab
+    pool_drivers = []
+    if job.city_pool:
+        applied_driver_ids = applications.values_list('driver_id', flat=True)
+        pool_drivers = DriverProfile.objects.filter(
+            city_pool=job.city_pool, is_active=True
+        ).exclude(id__in=applied_driver_ids)
+
+    pipeline = {
+        'search': pool_drivers,
+        'candidates': applications.filter(stage__in=['applied', 'reviewed', 'invited']),
+        'interviewing': applications.filter(stage='interview'),
+        'hired': applications.filter(stage='hired'),
+    }
+    
+    # access_requests to show if dispatcher has credential access
+    access_requests = CredentialAccessRequest.objects.filter(dispatcher=profile)
+    request_map = {req.driver_id: req for req in access_requests}
+
+    for app in applications:
+        app.driver.access_request = request_map.get(app.driver.id)
+    for driver in pool_drivers:
+        driver.access_request = request_map.get(driver.id)
+        
+    tab = request.GET.get('tab', 'candidates')
+    
+    context = {
+        'profile': profile,
+        'job': job,
+        'pipeline': pipeline,
+        'tab': tab,
+    }
+    return render(request, 'companies/job_dashboard.html', context)
+
+
+@login_required
+def edit_job(request, job_id):
+    if request.user.role != 'company':
+        return redirect('/')
+    messages.info(request, "Edit feature coming soon. Please close and repost if changes are needed.")
     return redirect('companies:dashboard')
+
+
+@login_required
+def close_job(request, job_id):
+    if request.method == 'POST' and request.user.role == 'company':
+        profile = request.user.company_profile
+        job = get_object_or_404(JobListing, pk=job_id, company=profile)
+        job.status = 'filled'
+        job.save()
+        messages.success(request, f'Job "{job.title}" has been closed.')
+    return redirect('companies:dashboard')
+
+
+@login_required
+def company_profile_public(request, company_id):
+    company = get_object_or_404(CompanyProfile, pk=company_id)
+    jobs = company.job_listings.filter(status='active').order_by('-created_at')
+    
+    context = {
+        'company': company,
+        'jobs': jobs,
+    }
+    return render(request, 'companies/public_profile.html', context)
 
 
 @login_required

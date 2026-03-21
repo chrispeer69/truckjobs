@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Verify Code{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:80px; padding-bottom:80px;">
+    <div class="container" style="max-width:400px;">
+        <div class="card p-32">
+            <h2 class="mb-8" style="text-align:center;">Enter Verification Code</h2>
+            <p class="text-muted text-center mb-24">We sent a 6-digit code to <strong>{{ email }}</strong>. It will
+                expire in 15 minutes.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">6-Digit Code</label>
+                    <input type="text" name="otp_code" class="form-input" required placeholder="e.g. 123456"
+                        maxlength="6" style="text-align:center; letter-spacing:4px; font-size:1.5rem; font-weight:600;">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mb-16">Verify Code</button>
+
+                <div class="text-center text-sm text-muted">
+                    Didn't receive it? <a href="{% url 'core:forgot_password' %}" style="text-decoration:none;">Try
+                        again</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

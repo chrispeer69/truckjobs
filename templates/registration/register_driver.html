@@ -43,21 +43,15 @@
                     <input type="number" id="years_experience" name="years_experience" class="form-input" min="0"
                         value="0">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="city">City</label>
-                        <select id="city" name="city" class="form-select" required>
-                            <option value="">Select a City</option>
-                            {% for pool in city_pools %}
-                            <option value="{{ pool.name }}">{{ pool.name }}, {{ pool.state }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="state">State</label>
-                        <input type="text" id="state" name="state" class="form-input" maxlength="2" placeholder="OH"
-                            required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="state">State</label>
+                    <select id="state" name="state" class="form-select state-selector" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="city">City</label>
+                    <select id="city" name="city" class="form-select city-selector" required>
+                        <option value="">Select a City</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg mt-8">Create My Driver Profile</button>
             </form>

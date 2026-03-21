@@ -27,5 +27,6 @@ staticfiles/
 .DS_Store
 Thumbs.db
 
-# Gemini/Antigravity
+# Gemini/OpenAI
 .gemini/
+

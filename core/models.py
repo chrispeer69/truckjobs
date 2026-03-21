@@ -17,3 +17,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.get_full_name() or self.username} ({self.role})"
+
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_codes')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        from django.utils import timezone
+        import datetime
+        return timezone.now() < self.created_at + datetime.timedelta(minutes=15)

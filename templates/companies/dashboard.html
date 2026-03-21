@@ -13,8 +13,7 @@
     </div>
 
     <div class="tab-bar">
-      <a href="?tab=pipeline" class="tab-link {% if tab == 'pipeline' %}active{% endif %}">Pipeline</a>
-      <a href="?tab=pool" class="tab-link {% if tab == 'pool' %}active{% endif %}">City Pool</a>
+      <a href="?tab=pipeline" class="tab-link {% if tab == 'pipeline' %}active{% endif %}">My Jobs</a>
       <a href="?tab=credentials" class="tab-link {% if tab == 'credentials' %}active{% endif %}">Credential Alerts</a>
     </div>
 
@@ -34,148 +33,68 @@
       </div>
     </div>
 
-    <div class="pipeline">
-      {% for stage_key, stage_apps in pipeline.items %}
-      <div class="pipeline-column">
-        <div class="pipeline-column-header">
-          <span>{{ stage_key|title }}</span>
-          <span class="pipeline-count">{{ stage_apps|length }}</span>
+    <div class="items-grid">
+      {% for job in company_jobs %}
+      <div class="card">
+        <div class="d-flex align-center justify-between mb-8">
+          <span class="badge {% if job.status == 'active' %}badge-green{% else %}badge-gray{% endif %}">
+            {{ job.get_status_display }}
+          </span>
+          <span class="text-xs text-muted">{{ job.created_at|date:"M d, Y" }}</span>
         </div>
-        {% for app in stage_apps %}
-        <div class="pipeline-card">
-          <div class="d-flex align-center gap-8 mb-8">
-            <div class="avatar avatar-sm avatar-orange">{{ app.driver.initials }}</div>
-            <div>
-              <div class="fw-600 text-sm">{{ app.driver.user.get_full_name }}</div>
-              <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }}yr</div>
-            </div>
+        <h3 class="mb-8">{{ job.title }}</h3>
+        <div class="text-sm text-muted mb-16">{{ job.get_category_display }} · {{ job.location }}</div>
+
+        <div class="d-flex align-center justify-between mt-16 pt-16" style="border-top:1px solid var(--border);">
+          <div class="text-sm fw-600">
+            <span class="text-brand">{{ job.applicant_count }}</span> Applicants
           </div>
-          <div class="text-xs text-hint mt-4">{{ app.job.title }}</div>
-          <div class="d-flex gap-4 mt-8 flex-wrap">
-            {% if stage_key == 'applied' %}
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
+          <div class="d-flex gap-8 align-center">
+            <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary btn-sm">Manage Pipeline →</a>
+            <a href="{% url 'companies:edit_job' job.pk %}" class="btn btn-primary btn-sm" title="Edit Job"
+              style="padding: 4px 12px; font-size: 14px;">✏️</a>
+            <form method="post" action="{% url 'companies:close_job' job.pk %}" style="margin: 0;"
+              onsubmit="return confirm('Are you sure you want to close this job?');">
               {% csrf_token %}
-              <input type="hidden" name="stage" value="reviewed">
-              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Reviewed →</button>
+              <button type="submit" class="btn btn-red btn-sm" title="Close Job"
+                style="padding: 4px 12px; font-size: 14px;">🗑️</button>
             </form>
-            {% endif %}
-            {% if stage_key == 'reviewed' %}
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="stage" value="applied">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Applied</button>
-            </form>
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="stage" value="interview">
-              <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.7rem;padding:3px 8px;">Interview →</button>
-            </form>
-            {% endif %}
-            {% if stage_key == 'interview' %}
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="stage" value="reviewed">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Reviewed</button>
-            </form>
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="stage" value="hired">
-              <button type="submit" class="btn btn-green btn-sm" style="font-size:0.7rem;padding:3px 8px;">Hire ✓</button>
-            </form>
-            {% endif %}
-            {% if stage_key == 'hired' %}
-            <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" name="stage" value="interview">
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:3px 8px;">← Interview</button>
-            </form>
-            {% endif %}
           </div>
         </div>
-        {% empty %}
-        <div class="text-center text-hint text-sm" style="padding:24px;">No applicants</div>
-        {% endfor %}
+      </div>
+      {% empty %}
+      <div class="text-center w-100 p-32" style="grid-column: 1 / -1;">
+        <div class="text-muted mb-16">You haven't posted any jobs yet.</div>
+        <a href="{% url 'companies:post_job' %}" class="btn btn-primary">Post Your First Job</a>
       </div>
       {% endfor %}
-    </div>
 
-    {% elif tab == 'pool' %}
-    <div class="mb-24">
-      <h3>City Driver Pool{% if profile.city_pool %} — {{ profile.city_pool }}{% endif %}</h3>
-      <p class="text-muted">Browse verified drivers in your city.</p>
-    </div>
 
-    {% for driver in pool_drivers %}
-    <div class="card driver-pool-card mb-12">
-      <div class="avatar avatar-md avatar-orange">{{ driver.initials }}</div>
-      <div class="driver-pool-info" style="flex:1;">
-        <div class="driver-pool-name">{{ driver.user.get_full_name }}</div>
-        <div class="driver-pool-details">
-          <span>{{ driver.get_cdl_class_display }}</span> · <span>{{ driver.years_experience }} years</span>
-          {% for spec in driver.specialty_list %}
-          <span class="badge badge-orange" style="font-size:0.7rem;">{{ spec }}</span>
-          {% endfor %}
-        </div>
-      </div>
-      <div style="text-align:right;min-width:140px;display:flex;flex-direction:column;gap:8px;">
-        {% if driver.availability == 'actively_hunting' %}
-        <span class="badge badge-green" style="align-self:flex-end;">Actively Looking</span>
-        {% elif driver.availability == 'employed_open' %}
-        <span class="badge badge-navy" style="align-self:flex-end;">Employed · Open</span>
-        {% else %}
-        <span class="badge badge-gray" style="align-self:flex-end;">Not Looking</span>
-        {% endif %}
-        {% if driver.min_pay_hourly %}
-        <div class="text-xs text-muted mt-4">${{ driver.min_pay_hourly }}/hr min</div>
-        {% endif %}
-
-        {% if driver.access_request %}
-        {% if driver.access_request.status == 'pending' %}
-        <span class="badge badge-amber mt-4" style="align-self:flex-end;">⏳ Access Pending</span>
-        {% elif driver.access_request.status == 'approved' %}
-        <span class="badge badge-green mt-4" style="align-self:flex-end;">✓ Access Granted</span>
-        <a href="{% url 'companies:view_driver_documents' driver.id %}" class="btn btn-primary btn-sm" style="font-size:0.75rem;">View Profile & Documents</a>
-        {% else %}
-        <span class="badge badge-red mt-4" style="align-self:flex-end;">✗ Access Denied</span>
-        {% endif %}
-        {% else %}
-        <form method="post" style="align-self:flex-end;">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="request_credentials">
-          <input type="hidden" name="driver_id" value="{{ driver.id }}">
-          <button type="submit" class="btn btn-secondary btn-sm mt-4">Request Credentials</button>
-        </form>
-        {% endif %}
-      </div>
     </div>
-    {% empty %}
-    <div class="card text-center" style="padding:40px;">
-      <p class="text-muted">No drivers in your city pool yet.</p>
-    </div>
-    {% endfor %}
 
     {% elif tab == 'credentials' %}
-    <div class="mb-24">
+    <div class="mb-24 mt-24">
       <h3>Credential Expiry Alerts</h3>
       <p class="text-muted">Track credential expirations for drivers you've hired or are reviewing.</p>
     </div>
 
-    {% for cred in cred_alerts %}
-    <div class="card mb-12" style="display:flex;align-items:center;gap:16px;">
-      <div class="avatar avatar-sm avatar-orange">{{ cred.driver.initials }}</div>
-      <div style="flex:1;">
-        <div class="fw-600">{{ cred.driver.user.get_full_name }}</div>
-        <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M d, Y" }}</div>
+    <div class="items-grid">
+      {% for cred in cred_alerts %}
+      <div class="card mb-12" style="display:flex;align-items:center;gap:16px;">
+        <div class="avatar avatar-sm avatar-orange">{{ cred.driver.initials }}</div>
+        <div style="flex:1;">
+          <div class="fw-600">{{ cred.driver.user.get_full_name }}</div>
+          <div class="text-sm text-muted">{{ cred.get_credential_type_display }} — expires {{ cred.expiry_date|date:"M    d, Y" }}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" disabled>Remind Driver</button>
       </div>
-      <button class="btn btn-ghost btn-sm" disabled>Remind Driver</button>
+      {% empty %}
+      <div class="card" style="padding:24px;">
+        <p class="fw-600" style="color:var(--green);">✓ All driver credentials are current</p>
+        <p class="text-sm text-muted">No credentials expiring within the next 60 days.</p>
+      </div>
+      {% endfor %}
     </div>
-    {% empty %}
-    <div class="card" style="padding:24px;">
-      <p class="fw-600" style="color:var(--green);">✓ All driver credentials are current</p>
-      <p class="text-sm text-muted">No credentials expiring within the next 60 days.</p>
-    </div>
-    {% endfor %}
     {% endif %}
-  </div>
 </section>
 {% endblock %}

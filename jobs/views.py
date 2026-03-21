@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.db import models
 from .models import JobListing
 
 
@@ -8,10 +9,24 @@ def job_list(request):
     # Search
     q = request.GET.get('q', '').strip()
     city = request.GET.get('city', '').strip()
+    state = request.GET.get('state', '').strip()
+    
     if q:
-        jobs = jobs.filter(title__icontains=q) | jobs.filter(description__icontains=q) | jobs.filter(company__company_name__icontains=q)
+        jobs = jobs.filter(
+            models.Q(title__icontains=q) | 
+            models.Q(description__icontains=q) | 
+            models.Q(company__company_name__icontains=q)
+        )
     if city:
-        jobs = jobs.filter(city_pool__name__icontains=city)
+        jobs = jobs.filter(
+            models.Q(city_pool__name__icontains=city) | 
+            models.Q(company__city__icontains=city)
+        )
+    if state:
+        jobs = jobs.filter(
+            models.Q(city_pool__state__iexact=state) | 
+            models.Q(company__state__iexact=state)
+        )
 
     # Filters
     category = request.GET.get('category', '')

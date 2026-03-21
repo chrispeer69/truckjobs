@@ -17,7 +17,14 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
-        user = authenticate(request, username=username, password=password)
+        
+        # Allow login by email or username
+        user_obj = User.objects.filter(email=username).first() or User.objects.filter(username=username).first()
+        
+        if user_obj:
+            user = authenticate(request, username=user_obj.username, password=password)
+        else:
+            user = None
         if user:
             login(request, user)
             messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
@@ -141,3 +148,98 @@ def register_company(request):
 
     city_pools = CityPool.objects.filter(is_active=True)
     return render(request, 'registration/register_company.html', {'city_pools': city_pools})
+
+
+def forgot_password(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        user = User.objects.filter(email__iexact=email).first()
+        
+        if not user:
+            # User wants a red colored sentence if not found
+            messages.error(request, 'No account available with this email.')
+            return render(request, 'core/forgot_password.html')
+        
+        # Give old OTPs an expired status or just create new
+        import random
+        from .models import PasswordResetOTP
+        from .emails import send_password_reset_otp
+        
+        otp_code = f"{random.randint(100000, 999999)}"
+        PasswordResetOTP.objects.create(user=user, otp=otp_code)
+        
+        # Send email
+        send_password_reset_otp(user, otp_code)
+        
+        request.session['reset_email'] = user.email
+        return redirect('core:verify_otp')
+        
+    return render(request, 'core/forgot_password.html')
+
+
+def verify_otp(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+        
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect('core:forgot_password')
+        
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code', '').strip()
+        user = User.objects.filter(email__iexact=email).first()
+        
+        if user:
+            from .models import PasswordResetOTP
+            # Get latest OTP
+            otp_record = PasswordResetOTP.objects.filter(user=user).order_by('-created_at').first()
+            if otp_record and otp_record.otp == otp_code and otp_record.is_valid():
+                request.session['otp_verified'] = True
+                return redirect('core:set_new_password')
+            else:
+                messages.error(request, 'Invalid or expired code. Please try again.')
+        else:
+            messages.error(request, 'Session expired. Please start over.')
+            return redirect('core:forgot_password')
+            
+    return render(request, 'core/verify_otp.html', {'email': email})
+
+
+def set_new_password(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+        
+    email = request.session.get('reset_email')
+    verified = request.session.get('otp_verified')
+    
+    if not email or not verified:
+        return redirect('core:forgot_password')
+        
+    if request.method == 'POST':
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'core/set_new_password.html')
+            
+        user = User.objects.filter(email__iexact=email).first()
+        if user:
+            user.set_password(password)
+            user.save()
+            
+            # Clean up
+            from .models import PasswordResetOTP
+            PasswordResetOTP.objects.filter(user=user).delete()
+            if 'reset_email' in request.session:
+                del request.session['reset_email']
+            if 'otp_verified' in request.session:
+                del request.session['otp_verified']
+                
+            messages.success(request, 'Password updated successfully! You can now log in.')
+            return redirect('login')
+            
+    return render(request, 'core/set_new_password.html')

@@ -18,7 +18,7 @@
             <div class="profile-info" style="flex:1;">
                 <h2>{{ profile.user.get_full_name }}</h2>
                 <div class="text-muted">
-                    {{ profile.get_cdl_class_display }} · {{ profile.years_experience }} years experience · {{ profile.city }}
+                    {{ profile.get_cdl_class_display }} · {{ profile.years_experience }} years experience · {{           profile.city }}
                 </div>
                 <div class="profile-badges">
                     {% if profile.is_identity_verified %}
@@ -78,7 +78,8 @@
                         <select name="availability" class="form-select">
                             <option value="actively_hunting" {% if profile.availability == 'actively_hunting' %}selected{% endif %}>Actively Hunting</option>
                             <option value="employed_open" {% if profile.availability == 'employed_open' %}selected{% endif %}>Employed but Open</option>
-                            <option value="not_looking" {% if profile.availability == 'not_looking' %}selected{% endif %}>Not Looking</option>
+                            <option value="not_looking" {% if profile.availability == 'not_looking' %}selected{% endif %}>
+                                Not Looking</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -121,7 +122,8 @@
                         <select name="cdl_class" class="form-select">
                             <option value="cdl_a" {% if profile.cdl_class == 'cdl_a' %}selected{% endif %}>CDL-A</option>
                             <option value="cdl_b" {% if profile.cdl_class == 'cdl_b' %}selected{% endif %}>CDL-B</option>
-                            <option value="no_cdl" {% if profile.cdl_class == 'no_cdl' %}selected{% endif %}>No CDL</option>
+                            <option value="no_cdl" {% if profile.cdl_class == 'no_cdl' %}selected{% endif %}>No CDL
+                            </option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -139,10 +141,14 @@
                     <div class="form-group">
                         <label class="form-label">Preferred Shift</label>
                         <select name="preferred_shift" class="form-select">
-                            <option value="day" {% if profile.preferred_shift == 'day' %}selected{% endif %}>Day Shift</option>
-                            <option value="night" {% if profile.preferred_shift == 'night' %}selected{% endif %}>Night Shift</option>
-                            <option value="rotating" {% if profile.preferred_shift == 'rotating' %}selected{% endif %}>Rotating</option>
-                            <option value="flexible" {% if profile.preferred_shift == 'flexible' %}selected{% endif %}>Flexible</option>
+                            <option value="day" {% if profile.preferred_shift == 'day' %}selected{% endif %}>Day Shift
+                            </option>
+                            <option value="night" {% if profile.preferred_shift == 'night' %}selected{% endif %}>Night
+                                Shift</option>
+                            <option value="rotating" {% if profile.preferred_shift == 'rotating' %}selected{% endif %}>
+                                Rotating</option>
+                            <option value="flexible" {% if profile.preferred_shift == 'flexible' %}selected{% endif %}>
+                                Flexible</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -150,16 +156,22 @@
                         <input type="tel" name="phone" class="form-input" value="{{ profile.phone }}">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">City Pool (Your area of work)</label>
-                    <select name="city_pool" class="form-select">
-                        <option value="">Select a City Pool</option>
-                        {% for pool in city_pools %}
-                        <option value="{{ pool.id }}" {% if profile.city_pool_id == pool.id %}selected{% endif %}>{{ pool.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <p class="text-xs text-hint mt-4">Required to show up in dispatcher searches for your area.</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select name="state" class="form-select state-selector" data-selected="{{ profile.state }}"
+                            required></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <select name="city" class="form-select city-selector" data-selected="{{ profile.city }}"
+                            required>
+                            <option value="">Select a City</option>
+                        </select>
+                    </div>
                 </div>
+                <p class="text-xs text-hint mt-4">Setting your location allows dispatchers to find you in their city
+                    pools.</p>
                 <div class="form-group">
                     <label class="form-label">Equipment Experience</label>
                     <input type="text" name="equipment_experience" class="form-input"
@@ -276,101 +288,174 @@
             {% endfor %}
         </div>
 
-    <div class="card mt-24" style="background:var(--surface2); border: 1px dashed var(--border);">
-        <p class="text-sm text-muted text-center py-12">Contact support if you need to upload a document not listed
-            above.</p>
-    </div>
+        <div class="card mt-24" style="background:var(--surface2); border: 1px dashed var(--border);">
+            <p class="text-sm text-muted text-center py-12">Contact support if you need to upload a document not listed
+                above.</p>
+        </div>
 
-    <div class="card mt-16" style="background:var(--surface2);">
-        <p class="text-sm text-muted">🔒 Your credentials are stored securely. You control who can see them.</p>
-    </div>
+        <div class="card mt-16" style="background:var(--surface2);">
+            <p class="text-sm text-muted">🔒 Your credentials are stored securely. You control who can see them.</p>
+        </div>
 
-    {% elif tab == 'reputation' %}
-    <div class="d-flex gap-24 mb-32">
-        <div>
-            <div class="aggregate-score">{{ profile.avg_rating }}</div>
-            <div class="stars mt-8">
-                {% for i in "12345" %}
-                {% if forloop.counter <= profile.avg_rating %} <span class="star filled" style="color:var(--amber);">
-                    ★</span>
-                    {% else %}
-                    <span class="star" style="color:var(--border);">★</span>
-                    {% endif %}
-                    {% endfor %}
+        {% elif tab == 'reputation' %}
+        <div class="d-flex gap-24 mb-32">
+            <div>
+                <div class="aggregate-score">{{ profile.avg_rating }}</div>
+                <div class="stars mt-8">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= profile.avg_rating %} <span class="star filled"
+                        style="color:var(--amber);">
+                        ★</span>
+                        {% else %}
+                        <span class="star" style="color:var(--border);">★</span>
+                        {% endif %}
+                        {% endfor %}
+                </div>
+                <div class="text-sm text-muted mt-8">{{ profile.review_count }} reviews</div>
             </div>
-            <div class="text-sm text-muted mt-8">{{ profile.review_count }} reviews</div>
+            <div style="flex:1;">
+                <h3 style="margin-bottom:16px;">Category Breakdown</h3>
+                <p class="text-muted">Review scores from past employers</p>
+            </div>
         </div>
-        <div style="flex:1;">
-            <h3 style="margin-bottom:16px;">Category Breakdown</h3>
-            <p class="text-muted">Review scores from past employers</p>
-        </div>
-    </div>
 
-    {% for review in reviews %}
-    <div class="card review-card mb-16">
-        <div class="review-header">
-            <div class="avatar avatar-md avatar-navy">{{ review.company.initials }}</div>
-            <div class="review-company-info">
-                <div class="review-company-name">{{ review.company.company_name }}</div>
-                <div class="review-dates">
-                    {% if review.employed_from and review.employed_to %}
-                    {{ review.employed_from|date:"M Y" }} – {{ review.employed_to|date:"M Y" }}
-                    {% endif %}
+        {% for review in reviews %}
+        <div class="card review-card mb-16">
+            <div class="review-header">
+                <div class="avatar avatar-md avatar-navy">{{ review.company.initials }}</div>
+                <div class="review-company-info">
+                    <div class="review-company-name">{{ review.company.company_name }}</div>
+                    <div class="review-dates">
+                        {% if review.employed_from and review.employed_to %}
+                        {{ review.employed_from|date:"M Y" }} – {{ review.employed_to|date:"M Y" }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stars">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= review.overall_average %} <span class="star filled"
+                        style="color:var(--amber);">★</span>
+                        {% else %}
+                        <span class="star" style="color:var(--border);">★</span>
+                        {% endif %}
+                        {% endfor %}
                 </div>
             </div>
-            <div class="stars">
-                {% for i in "12345" %}
-                {% if forloop.counter <= review.overall_average %} <span class="star filled"
-                    style="color:var(--amber);">★</span>
-                    {% else %}
-                    <span class="star" style="color:var(--border);">★</span>
-                    {% endif %}
-                    {% endfor %}
-            </div>
-        </div>
-        {% if review.comment %}
-        <div class="review-comment">{{ review.comment }}</div>
-        {% endif %}
-    </div>
-    {% empty %}
-    <div class="card text-center" style="padding:40px;">
-        <p class="text-muted">No reviews yet. Reviews from companies will appear here.</p>
-    </div>
-    {% endfor %}
-
-    {% elif tab == 'applications' %}
-    <h3 class="mb-16">My Applications</h3>
-    <div class="card">
-        {% for app in applications %}
-        <div class="application-row">
-            {% if app.job.category == 'tow_truck' %}
-            <div class="avatar avatar-md avatar-orange">{{ app.job.company.initials }}</div>
-            {% else %}
-            <div class="avatar avatar-md avatar-navy">{{ app.job.company.initials }}</div>
+            {% if review.comment %}
+            <div class="review-comment">{{ review.comment }}</div>
             {% endif %}
-            <div class="application-info">
-                <div class="application-title"><a href="{% url 'jobs:detail' app.job.pk %}">{{ app.job.title }}</a>
-                </div>
-                <div class="application-company">{{ app.job.company.company_name }}</div>
-            </div>
-            {% if app.stage == 'applied' %}
-            <span class="badge badge-gray">{{ app.get_stage_display }}</span>
-            {% elif app.stage == 'reviewed' %}
-            <span class="badge badge-navy">{{ app.get_stage_display }}</span>
-            {% elif app.stage == 'interview' %}
-            <span class="badge badge-amber">{{ app.get_stage_display }}</span>
-            {% elif app.stage == 'hired' %}
-            <span class="badge badge-green">{{ app.get_stage_display }}</span>
-            {% endif %}
-            <div class="text-sm text-hint">{{ app.created_at|date:"M d" }}</div>
         </div>
         {% empty %}
-        <div class="text-center" style="padding:40px;">
-            <p class="text-muted">No applications yet. <a href="{% url 'jobs:list' %}">Browse open jobs</a></p>
+        <div class="card text-center" style="padding:40px;">
+            <p class="text-muted">No reviews yet. Reviews from companies will appear here.</p>
         </div>
         {% endfor %}
-    </div>
-    {% endif %}
+
+        {% elif tab == 'applications' %}
+        <h3 class="mb-16">My Applications</h3>
+        <div class="card">
+            {% for app in applications %}
+            <div class="application-row" style="flex-direction:column; align-items:flex-start;">
+                <div class="d-flex w-100 align-center gap-16">
+                    {% if app.job.category == 'tow_truck' %}
+                    <div class="avatar avatar-md avatar-orange">{{ app.job.company.initials }}</div>
+                    {% else %}
+                    <div class="avatar avatar-md avatar-navy">{{ app.job.company.initials }}</div>
+                    {% endif %}
+                    <div class="application-info" style="flex:1;">
+                        <div class="application-title">
+                            <a href="{% url 'jobs:detail' app.job.pk %}">{{ app.job.title }}</a>
+                        </div>
+                        <a href="{% url 'companies:company_profile_public' app.job.company.id %}"
+                            class="application-company" style="text-decoration:none; color:inherit;">
+                            {{ app.job.company.company_name }}
+                        </a>
+                    </div>
+                    {% if app.stage == 'applied' %}
+                    <span class="badge badge-gray">{{ app.get_stage_display }}</span>
+                    {% elif app.stage == 'invited' %}
+                    <span class="badge badge-amber">Invited</span>
+                    {% elif app.stage == 'reviewed' %}
+                    <span class="badge badge-navy">{{ app.get_stage_display }}</span>
+                    {% elif app.stage == 'interview' %}
+                    <span class="badge badge-amber">{{ app.get_stage_display }}</span>
+                    {% elif app.stage == 'hired' %}
+                    <span class="badge badge-green">{{ app.get_stage_display }}</span>
+                    {% elif app.stage == 'rejected' or app.stage == 'withdrawn' %}
+                    <span class="badge badge-red">{{ app.get_stage_display }}</span>
+                    {% endif %}
+                    <div class="text-sm text-hint">{{ app.created_at|date:"M d" }}</div>
+
+                    <div class="d-flex gap-8 ml-16">
+                        {% if app.stage == 'invited' %}
+                        <form method="post" action="{% url 'drivers:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="accept_invite">
+                            <input type="hidden" name="app_id" value="{{ app.pk }}">
+                            <button type="submit" class="btn btn-green btn-sm">Accept</button>
+                        </form>
+                        <form method="post" action="{% url 'drivers:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="decline_invite">
+                            <input type="hidden" name="app_id" value="{{ app.pk }}">
+                            <button type="submit" class="btn btn-ghost btn-sm text-red">Decline</button>
+                        </form>
+                        {% elif app.stage != 'hired' and app.stage != 'rejected' and app.stage != 'withdrawn' %}
+                        <form method="post" action="{% url 'drivers:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="withdraw_app">
+                            <input type="hidden" name="app_id" value="{{ app.pk }}">
+                            <button type="submit" class="btn btn-ghost btn-sm text-red">Withdraw</button>
+                        </form>
+                        {% elif app.stage == 'hired' %}
+                        <form method="post" action="{% url 'drivers:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="withdraw_app">
+                            <input type="hidden" name="app_id" value="{{ app.pk }}">
+                            <button type="submit" class="btn btn-ghost btn-sm text-red">Reject Offer</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if app.messages.all or app.stage == 'interview' %}
+                <div class="messages mt-16 w-100 p-16 card" style="background:var(--surface2); width:100%;">
+                    <h5 class="mb-8">Messages & Correspondence</h5>
+                    {% for msg in app.messages.all %}
+                    <div class="mb-8 p-8"
+                        style="background:var(--surface); border-radius:4px; {% if msg.sender_is_company %}border-left:3px solid var(--brand);{% else %}border-left:3px solid var(--gray);{% endif %}">
+                        <div class="text-xs text-muted mb-4">
+                            {% if msg.sender_is_company %}{{ app.job.company.company_name }}{% else %}You{% endif %} -
+                            {{ msg.created_at|date:"M d, g:i a" }}
+                        </div>
+                        <div class="text-sm">{{ msg.content }}</div>
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-muted mb-8">No messages yet. Send a message to start the conversation.</p>
+                    {% endfor %}
+
+                    {% if app.stage != 'hired' and app.stage != 'rejected' and app.stage != 'withdrawn' %}
+                    <form method="post" action="{% url 'drivers:profile' %}?tab=applications" class="mt-8">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reply_question">
+                        <input type="hidden" name="app_id" value="{{ app.pk }}">
+                        <div class="d-flex gap-8" style="width:100%;">
+                            <input type="text" name="content" class="form-input text-sm"
+                                placeholder="Type your message..." maxlength="600" style="flex:1;" required>
+                            <button type="submit" class="btn btn-secondary btn-sm">Send Message</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center" style="padding:40px;">
+                <p class="text-muted">No applications yet. <a href="{% url 'jobs:list' %}">Browse open jobs</a></p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

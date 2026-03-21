@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.company_name }} - Profile{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container" style="max-width:800px; margin:0 auto;">
+        <div class="d-flex align-center justify-between mb-24">
+            <div class="d-flex align-center gap-16">
+                <div class="avatar avatar-xl avatar-navy">{{ company.company_name|make_list|first|upper }}</div>
+                <div>
+                    <h2>{{ company.company_name }}</h2>
+                    <div class="text-muted">Part of {{ company.city_pool|default:"No pool specified" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-24">
+            <h3 class="mb-16">About the Company</h3>
+            {% if company.about %}
+            <p class="text-sm" style="line-height:1.6;">{{ company.about|linebreaks }}</p>
+            {% else %}
+            <p class="text-muted text-sm">No description provided.</p>
+            {% endif %}
+        </div>
+
+        <h3 class="mb-16">Active Jobs Openings</h3>
+        <div class="items-grid">
+            {% for job in jobs %}
+            <div class="card">
+                <div class="d-flex align-center justify-between mb-8">
+                    <span class="badge badge-green">{{ job.get_type_display }}</span>
+                    <span class="text-xs text-muted">{{ job.created_at|date:"M d, Y" }}</span>
+                </div>
+                <h4 class="mb-8">{{ job.title }}</h4>
+                <div class="text-sm text-muted mb-16">{{ job.get_category_display }} · {{ job.location }}</div>
+                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-secondary btn-sm"
+                    style="width:100%;text-align:center;">View Details</a>
+            </div>
+            {% empty %}
+            <div class="text-center w-100 p-32 card">
+                <div class="text-muted">No active openings right now.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

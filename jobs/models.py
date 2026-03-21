@@ -58,6 +58,12 @@ class JobListing(models.Model):
         return f"{self.title} at {self.company}"
 
     @property
+    def location(self):
+        if self.city_pool:
+            return f"{self.city_pool.name}, {self.city_pool.state}"
+        return f"{self.company.city}, {self.company.state}"
+
+    @property
     def pay_display(self):
         if self.pay_min and self.pay_max:
             if self.pay_type == 'hourly':
@@ -107,9 +113,12 @@ class JobListing(models.Model):
 class JobApplication(models.Model):
     STAGE_CHOICES = [
         ('applied', 'Applied'),
+        ('invited', 'Invited'),
         ('reviewed', 'Reviewed'),
         ('interview', 'Interview'),
         ('hired', 'Hired'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn'),
     ]
 
     job = models.ForeignKey(JobListing, on_delete=models.CASCADE, related_name='applications')
@@ -127,3 +136,17 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f"{self.driver} → {self.job} [{self.stage}]"
+
+
+class ApplicationMessage(models.Model):
+    application = models.ForeignKey(JobApplication, on_delete=models.CASCADE, related_name='messages')
+    sender_is_company = models.BooleanField(default=True, help_text="True if from dispatcher, False if from driver")
+    content = models.TextField(max_length=600)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        sender = self.application.job.company.company_name if self.sender_is_company else self.application.driver.user.get_full_name()
+        return f"Message from {sender} on {self.application}"

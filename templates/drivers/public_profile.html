@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ driver.user.get_full_name }} - Profile{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container" style="max-width:800px; margin:0 auto;">
+        <div class="d-flex align-center gap-16 mb-24">
+            <div class="avatar avatar-xl avatar-orange">{{ driver.initials }}</div>
+            <div>
+                <h2>{{ driver.user.get_full_name }}</h2>
+                <div class="text-muted">{{ driver.get_cdl_class_display }} · {{ driver.years_experience }} years
+                    experience</div>
+                <div class="mt-8">
+                    {% if driver.availability == 'actively_hunting' %}
+                    <span class="badge badge-green">Actively Hunting</span>
+                    {% elif driver.availability == 'employed_open' %}
+                    <span class="badge badge-navy">Employed but Open</span>
+                    {% else %}
+                    <span class="badge badge-gray">Not Looking</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-24">
+            <h3 class="mb-16">Professional Details</h3>
+            <div class="d-flex gap-24 flex-wrap">
+                <div style="flex:1; min-width:200px;">
+                    <div class="text-xs text-muted">Preferred Shift</div>
+                    <div class="fw-600">{{ driver.get_preferred_shift_display|default:"Not specified" }}</div>
+                </div>
+                <div style="flex:1; min-width:200px;">
+                    <div class="text-xs text-muted">Minimum Pay</div>
+                    <div class="fw-600">{% if driver.min_pay_hourly %}${{ driver.min_pay_hourly }}/hr{% else %}Not
+                        specified{% endif %}</div>
+                </div>
+                <div style="flex:1; min-width:200px;">
+                    <div class="text-xs text-muted">City</div>
+                    <div class="fw-600">{{ driver.city|default:"Not specified" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-24">
+            <h3 class="mb-16">Equipment Experience</h3>
+            <div class="d-flex gap-8 flex-wrap">
+                {% for spec in driver.specialty_list %}
+                <span class="badge badge-orange">{{ spec }}</span>
+                {% empty %}
+                <span class="text-muted text-sm">No special equipment listed.</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

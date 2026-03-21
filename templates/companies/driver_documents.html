@@ -14,8 +14,7 @@
         <div class="avatar avatar-lg avatar-orange">{{ target_driver.initials }}</div>
         <div>
           <h2 style="margin:0;">{{ target_driver.user.get_full_name }}</h2>
-          <div class="text-muted">{{ target_driver.get_cdl_class_display }} · {{ target_driver.city }}, {{
-            target_driver.state }}</div>
+          <div class="text-muted">{{ target_driver.get_cdl_class_display }} · {{ target_driver.city }}, {{ target_driver.state }}</div>
         </div>
       </div>
 
@@ -33,6 +32,14 @@
           {% else %}
           <span class="badge badge-gray">{{ cred.get_status_display }}</span>
           {% endif %}
+
+          {% if cred.file %}
+          <div class="mt-8 text-sm">
+            <a href="{{ cred.file.url }}" target="_blank" class="btn btn-secondary btn-sm"
+              style="display:inline-block; margin-top: 8px;">View File 📄</a>
+          </div>
+          {% endif %}
+
           {% if cred.expiry_date %}
           <div class="text-xs text-muted mt-8">Expires: {{ cred.expiry_date|date:"M d, Y" }}</div>
           {% endif %}

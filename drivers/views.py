@@ -38,14 +38,19 @@ def driver_profile(request):
             profile.last_employer = request.POST.get('last_employer', profile.last_employer)
             profile.equipment_experience = request.POST.get('equipment_experience', profile.equipment_experience)
 
-            # Update city pool via ID
-            pool_id = request.POST.get('city_pool')
-            if pool_id:
-                city_pool = CityPool.objects.filter(id=pool_id).first()
-                if city_pool:
-                    profile.city_pool = city_pool
-                    profile.city = city_pool.name
-                    profile.state = city_pool.state
+            profile.city = request.POST.get('city', profile.city)
+            profile.state = (request.POST.get('state', profile.state) or '').upper()
+
+            # Attempt to match a CityPool
+            matched_pool = CityPool.objects.filter(
+                name__iexact=profile.city, 
+                state__iexact=profile.state, 
+                is_active=True
+            ).first()
+            if matched_pool:
+                profile.city_pool = matched_pool
+            else:
+                profile.city_pool = None
             
             profile.save()
             messages.success(request, 'Profile updated successfully!')
@@ -119,6 +124,71 @@ def driver_profile(request):
                 messages.warning(request, 'No file selected for upload.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
+        elif action == 'reply_question':
+            from jobs.models import ApplicationMessage, JobApplication
+            app_id = request.POST.get('app_id')
+            content = request.POST.get('content', '')[:600]
+            if app_id and content:
+                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                ApplicationMessage.objects.create(
+                    application=application,
+                    sender_is_company=False,
+                    content=content
+                )
+                messages.success(request, 'Reply sent to dispatcher.')
+            return redirect(reverse('drivers:profile') + '?tab=applications')
+
+        elif action == 'withdraw_app':
+            from jobs.models import JobApplication
+            app_id = request.POST.get('app_id')
+            if app_id:
+                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                application.stage = 'withdrawn'
+                application.save()
+                messages.success(request, 'Application withdrawn.')
+            return redirect(reverse('drivers:profile') + '?tab=applications')
+
+        elif action == 'accept_invite':
+            from jobs.models import JobApplication
+            app_id = request.POST.get('app_id')
+            if app_id:
+                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                if application.stage == 'invited':
+                    application.stage = 'interview'
+                    application.save()
+                    messages.success(request, 'Invitation accepted! You are now in the interviewing stage.')
+            return redirect(reverse('drivers:profile') + '?tab=applications')
+
+        elif action == 'decline_invite':
+            from jobs.models import JobApplication
+            app_id = request.POST.get('app_id')
+            if app_id:
+                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                if application.stage == 'invited':
+                    application.stage = 'withdrawn'
+                    application.save()
+                    messages.success(request, 'Invitation declined.')
+            return redirect(reverse('drivers:profile') + '?tab=applications')
+
+        elif action == 'reply_question':
+            from jobs.models import JobApplication, ApplicationMessage
+            app_id = request.POST.get('app_id')
+            content = request.POST.get('content')
+            if app_id and content:
+                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                ApplicationMessage.objects.create(
+                    application=application,
+                    sender_is_company=False,
+                    content=content
+                )
+                # If was invited, maybe auto-accept? No, user said "respond"
+                # But typically responding implies starting the interview
+                if application.stage == 'invited':
+                    application.stage = 'interview'
+                    application.save()
+                messages.success(request, 'Message sent!')
+            return redirect(reverse('drivers:profile') + '?tab=applications')
+
     # Build context
     credentials = []
     cred_types = ['cdl', 'dot_medical', 'mvr', 'drug_test', 'wreckmaster', 'hazmat']
@@ -169,3 +239,9 @@ def quick_apply(request, job_id):
 
     next_url = request.GET.get('next', request.META.get('HTTP_REFERER', '/jobs/'))
     return redirect(next_url)
+
+
+@login_required
+def driver_profile_public(request, driver_id):
+    driver = get_object_or_404(DriverProfile, pk=driver_id)
+    return render(request, 'drivers/public_profile.html', {'driver': driver})
