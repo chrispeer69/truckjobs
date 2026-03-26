@@ -108,55 +108,59 @@
 <section class="section" style="background: var(--surface2);">
     <div class="container">
         <div class="text-center mb-48">
-            <span class="eyebrow">Pricing Plans</span>
-            <h2>Simple, Transparent Pricing</h2>
-            <p class="text-muted mt-12">The job board built for drivers. No hidden fees, just direct connections.</p>
+            <span class="eyebrow">Pricing</span>
+            <h2>Always free for drivers.<br>Simple flat-rate for companies.</h2>
         </div>
 
         <div class="three-col mt-48"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-            <!-- For Drivers -->
-            <div class="card pricing-card" style="border-top: 4px solid var(--green);">
-                <div class="pricing-pill">MOST POPULAR</div>
-                <h3>For Drivers</h3>
-                <div class="price">$0<span class="price-period">/forever</span></div>
-                <p class="text-sm text-muted">Join the pool and get discovered.</p>
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
+            <!-- Drivers -->
+            <div class="card pricing-card" style="border: 1px solid var(--border);">
+                <h3 style="margin-bottom: 12px;">Drivers</h3>
+                <div class="price" style="color: var(--green);">Free</div>
+                <p class="text-sm text-muted" style="margin-bottom: 20px;">Forever. No catch.</p>
                 <ul>
-                    <li><span class="pricing-tick">✓</span> Create Professional Profile</li>
-                    <li><span class="pricing-tick">✓</span> Join Unlimited City Pools</li>
-                    <li><span class="pricing-tick">✓</span> Reputation Tracking</li>
-                    <li><span class="pricing-tick">✓</span> Secure Credential Vault</li>
+                    <li><span class="pricing-tick">✓</span> Build your driver profile</li>
+                    <li><span class="pricing-tick">✓</span> Upload & store all credentials</li>
+                    <li><span class="pricing-tick">✓</span> Join your city pool</li>
+                    <li><span class="pricing-tick">✓</span> Apply to any listing</li>
+                    <li><span class="pricing-tick">✓</span> SMS profile-view alerts</li>
+                    <li><span class="pricing-tick">✓</span> Credential expiry reminders</li>
                 </ul>
-                <a href="{% url 'core:register_driver' %}" class="btn btn-green btn-block mt-24">Join for Free</a>
+                <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-block mt-24">Create Profile Free</a>
             </div>
 
-            <!-- Basic Dispatcher -->
-            <div class="card pricing-card" style="border-top: 4px solid var(--brand);">
-                <h3>Basic Dispatcher</h3>
-                <div class="price">$0<span class="price-period">/month</span></div>
-                <p class="text-sm text-muted">Search and hire talent directly.</p>
+            <!-- Companies -->
+            <div class="card pricing-card" style="border: 2px solid var(--brand); position: relative;">
+                <div class="pricing-pill" style="background: var(--brand); color: white;">LAUNCH — FREE NOW</div>
+                <h3 style="margin-bottom: 12px;">Companies</h3>
+                <div class="price" style="color: var(--navy);">$249<span class="price-period">/mo</span></div>
+                <p class="text-sm text-muted" style="margin-bottom: 20px;">When paid tier launches — free until then.</p>
                 <ul>
-                    <li><span class="pricing-tick">✓</span> Search All City Pools</li>
-                    <li><span class="pricing-tick">✓</span> Request Credential Access</li>
-                    <li><span class="pricing-tick">✓</span> Post Basic Job Listings</li>
-                    <li><span class="pricing-tick">✓</span> Hiring Dashboard</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Unlimited job listings</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Full city driver pool access</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Credential vault access</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Dispatcher pipeline dashboard</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Credential expiry alerts</li>
+                    <li><span class="pricing-tick" style="color: var(--brand);">✓</span> Direct driver messaging</li>
                 </ul>
-                <a href="{% url 'core:register_company' %}" class="btn btn-primary btn-block mt-24">Start Searching</a>
+                <a href="{% url 'core:register_company' %}" class="btn btn-primary btn-block mt-24">Post First Job Free</a>
             </div>
 
-            <!-- Pro Dispatcher -->
-            <div class="card pricing-card" style="border-top: 4px solid var(--navy);">
-                <div class="badge badge-navy" style="margin-bottom: 12px;">COMING SOON</div>
-                <h3>Pro Dispatcher</h3>
-                <div class="price">$49<span class="price-period">/month</span></div>
-                <p class="text-sm text-muted">Advanced tools for large fleets.</p>
+            <!-- Enterprise -->
+            <div class="card pricing-card" style="border: 1px solid var(--border);">
+                <h3 style="margin-bottom: 12px;">Enterprise</h3>
+                <div class="price" style="color: var(--navy);">Custom</div>
+                <p class="text-sm text-muted" style="margin-bottom: 20px;">For multi-location fleets & franchises.</p>
                 <ul>
-                    <li><span class="pricing-tick">✓</span> Featured Job Listings</li>
-                    <li><span class="pricing-tick">✓</span> Advanced Pipeline CRM</li>
-                    <li><span class="pricing-tick">✓</span> Background Check Integration</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> Everything in Company</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> Multi-city pools</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> ATS integrations</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> Dedicated account manager</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> Custom onboarding</li>
+                    <li><span class="pricing-tick" style="color: var(--green);">✓</span> API access</li>
                 </ul>
-                <button class="btn btn-ghost btn-block mt-24 disabled" disabled
-                    style="opacity: 0.5; cursor: not-allowed;">Enterprise Only</button>
+                <a href="mailto:contact@drivingjobs.online" class="btn btn-secondary btn-block mt-24">Contact Sales</a>
             </div>
         </div>
     </div>
@@ -171,8 +175,8 @@
             Here is how we compare to the old way of hiring.
         </p>
 
-        <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--rl); padding: 8px;">
-            <table class="comparison-table" style="margin: 0; border: none; color: var(--text);">
+        <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--rl); padding: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="comparison-table" style="margin: 0; border: none; color: var(--text); min-width: 450px;">
                 <thead>
                     <tr>
                         <th style="background: var(--surface2); color: var(--text);">Feature</th>

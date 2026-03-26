@@ -17,7 +17,7 @@ def dashboard(request):
         return redirect('/')
 
     profile = request.user.company_profile
-    tab = request.GET.get('tab', 'pipeline')
+    tab = request.GET.get('tab', 'jobs')
 
     # My Jobs data
     from django.db.models import Count
@@ -64,6 +64,8 @@ def dashboard(request):
             expiry_date__isnull=False,
             expiry_date__lte=soon,
         ).exclude(status='missing').select_related('driver', 'driver__user').order_by('expiry_date')
+
+    # Pipeline kanban grouping (REMOVED - now per job in job_kanban view)
 
     context = {
         'profile': profile,
@@ -116,6 +118,17 @@ def post_job(request):
         if status == 'draft':
             messages.success(request, 'Job saved as draft.')
         else:
+            # Trigger Job Match Emails
+            if job.city_pool:
+                matching_drivers = job.city_pool.driverprofile_set.filter(
+                    is_active=True,
+                    cdl_class=job.cdl_requirement
+                )
+                from core.emails import send_job_match_mail
+                for driver in matching_drivers:
+                    if driver.sms_job_match: # Respect user alert settings
+                        send_job_match_mail(driver, job)
+                        
             messages.success(request, f'"{job.title}" is now live! Drivers in your city pool can see it.')
         return redirect('companies:company_jobs')
 
@@ -157,11 +170,17 @@ def update_stage(request, app_id):
         content = request.POST.get('content', '').strip()
         if content:
             from jobs.models import ApplicationMessage
+            from core.emails import send_message_mail
+            
             ApplicationMessage.objects.create(
                 application=application,
                 sender_is_company=True,
                 content=content
             )
+            
+            # Send Notification Email
+            send_message_mail(request.user.company_profile.company_name, application.driver.user, application, content)
+            
             # Move to interview stage if they asked a question
             if application.stage in ['applied', 'reviewed', 'invited']:
                 application.stage = 'interview'
@@ -280,10 +299,12 @@ def close_job(request, job_id):
 def company_profile_public(request, company_id):
     company = get_object_or_404(CompanyProfile, pk=company_id)
     jobs = company.job_listings.filter(status='active').order_by('-created_at')
+    reviews = company.reviews_received.select_related('driver').order_by('-created_at')
     
     context = {
         'company': company,
         'jobs': jobs,
+        'reviews': reviews,
     }
     return render(request, 'companies/public_profile.html', context)
 
@@ -296,21 +317,87 @@ def view_driver_documents(request, driver_id):
     profile = request.user.company_profile
     target_driver = get_object_or_404(DriverProfile, pk=driver_id)
 
-    # Check if access is granted
-    access_req = CredentialAccessRequest.objects.filter(
+    # Verify access
+    access = CredentialAccessRequest.objects.filter(
         dispatcher=profile,
         driver=target_driver,
         status='approved'
-    ).first()
+    ).exists()
 
-    if not access_req:
-        messages.error(request, 'You do not have access to view this driver\'s documents.')
+    if not access:
+        messages.error(request, "You do not have permission to view these documents.")
         return redirect('companies:dashboard')
 
-    credentials = target_driver.credentials.exclude(file__exact='')
-    
-    return render(request, 'companies/driver_documents.html', {
+    return render(request, 'companies/view_driver_documents.html', {
         'target_driver': target_driver,
-        'credentials': credentials,
+        'profile': profile
     })
 
+@login_required
+def leave_driver_review(request, driver_id):
+    if request.method != 'POST' or request.user.role != 'company':
+        return redirect('/')
+
+    from drivers.models import DriverProfile, DriverReview
+    from jobs.models import JobApplication
+
+    target_driver = get_object_or_404(DriverProfile, pk=driver_id)
+    company = request.user.company_profile
+
+    # SECURITY CHECK: Must be hired
+    if not JobApplication.objects.filter(driver=target_driver, job__company=company, stage='hired').exists():
+        messages.error(request, "You can only review drivers you have hired.")
+        return redirect(request.META.get('HTTP_REFERER', 'companies:dashboard'))
+
+    # One review per driver per company
+    if DriverReview.objects.filter(driver=target_driver, company=company).exists():
+        messages.error(request, "You have already reviewed this driver.")
+        return redirect(request.META.get('HTTP_REFERER', 'companies:dashboard'))
+
+    DriverReview.objects.create(
+        driver=target_driver,
+        company=company,
+        reliability=int(request.POST.get('reliability', 5)),
+        punctuality=int(request.POST.get('punctuality', 5)),
+        equipment=int(request.POST.get('equipment', 5)),
+        communication=int(request.POST.get('communication', 5)),
+        comment=request.POST.get('comment', '').strip(),
+        employed_from=request.POST.get('employed_from') or None,
+        employed_to=request.POST.get('employed_to') or None
+    )
+    
+    messages.success(request, f"Review submitted for {target_driver.user.get_full_name()}!")
+    return redirect(request.META.get('HTTP_REFERER', 'companies:dashboard'))
+
+
+
+@login_required
+def job_kanban(request, job_id):
+    if request.user.role != 'company':
+        return redirect('/')
+    profile = request.user.company_profile
+    job = get_object_or_404(JobListing, id=job_id, company=profile)
+    applications = job.applications.all().select_related('driver', 'driver__user').order_by('-created_at')
+    
+    pipeline = {
+        'applied': applications.filter(stage__in=['applied', 'invited']),
+        'reviewed': applications.filter(stage='reviewed'),
+        'interview': applications.filter(stage='interview'),
+        'hired': applications.filter(stage='hired'),
+    }
+    
+    stats = {
+        'total_applicants': applications.count(),
+        'interviews_this_week': applications.filter(
+            stage='interview',
+            updated_at__gte=timezone.now() - timedelta(days=7)
+        ).count(),
+        'open_positions': 1 if job.status == 'active' else 0,
+    }
+    
+    return render(request, 'companies/job_kanban.html', {
+        'profile': profile,
+        'job': job,
+        'pipeline': pipeline,
+        'stats': stats,
+    })

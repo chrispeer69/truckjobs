@@ -408,12 +408,52 @@ class="application-company" style="text-decoration:none; color:inherit;">
 <button type="submit" class="btn btn-ghost btn-sm text-red">Withdraw</button>
 </form>
 {% elif app.stage == 'hired' %}
+<button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('review-company-modal-{{ app.job.company.id }}').style.display='block'" style="background-color: var(--amber); border-color: var(--amber);">⭐️ Leave Review</button>
 <form method="post" action="{% url 'drivers:profile' %}">
 {% csrf_token %}
 <input type="hidden" name="action" value="withdraw_app">
 <input type="hidden" name="app_id" value="{{ app.pk }}">
 <button type="submit" class="btn btn-ghost btn-sm text-red">Reject Offer</button>
 </form>
+
+<!-- Modal for leaving review -->
+<div id="review-company-modal-{{ app.job.company.id }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+    <div class="modal-content card" style="background:var(--surface); margin:10% auto; padding:24px; max-width:500px; border-radius:8px;">
+        <h3 class="mb-16">Review {{ app.job.company.company_name }}</h3>
+        <p class="text-sm text-muted mb-16">Share your experience working with this dispatcher. This helps other drivers find great employers!</p>
+        <form method="post" action="{% url 'drivers:leave_company_review' app.job.company.id %}">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Professionalism (1-5)</label>
+                    <input type="number" name="professionalism" class="form-input" min="1" max="5" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Communication (1-5)</label>
+                    <input type="number" name="communication" class="form-input" min="1" max="5" value="5" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Pay Reliability (1-5)</label>
+                    <input type="number" name="pay_reliability" class="form-input" min="1" max="5" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Equipment Quality (1-5)</label>
+                    <input type="number" name="equipment_quality" class="form-input" min="1" max="5" value="5" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Public Comment</label>
+                <textarea name="comment" class="form-textarea" rows="4" placeholder="Tell us about your experience..." required></textarea>
+            </div>
+            <div class="d-flex gap-8 justify-end mt-16">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('review-company-modal-{{ app.job.company.id }}').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="background-color: var(--amber); border-color: var(--amber); color: white;">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endif %}
 </div>
 </div>

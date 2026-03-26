@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} Pipeline{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+    <!-- Header -->
+    <div class="dashboard-header mb-24">
+      <div>
+        <a href="{% url 'companies:dashboard' %}" class="text-sm text-brand mb-8 d-block">← Back to Dashboard</a>
+        <h1 class="dashboard-company-name">{{ job.title }} Pipeline</h1>
+        <p class="text-sm text-muted">
+          {{ job.get_category_display }} · {{ stats.total_applicants }} applicant{{ stats.total_applicants|pluralize }} · {{ stats.interviews_this_week }} interviews this week
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary">Switch to Detailed View</a>
+      </div>
+    </div>
+
+    <!-- Kanban Pipeline Board -->
+    <div class="pipeline">
+      <!-- APPLIED Column -->
+      <div class="pipeline-column">
+        <div class="pipeline-column-header">
+          <span>APPLIED</span>
+          <span class="pipeline-count">{{ pipeline.applied|length }}</span>
+        </div>
+        {% for app in pipeline.applied %}
+        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=candidates'" style="cursor:pointer;">
+            <div class="d-flex gap-12 align-center">
+              <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" onclick="event.stopPropagation();">
+                <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
+              </a>
+              <div>
+                <div class="fw-600">
+                  <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" onclick="event.stopPropagation();" style="color:var(--text); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    {{ app.driver.user.get_full_name }}
+                  </a>
+                </div>
+                <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }} yrs</div>
+              </div>
+            </div>
+            <div class="stars mt-8">
+              {% with rating=app.driver.avg_rating %}
+              {% for i in "12345" %}
+              <span class="star {% if forloop.counter <= rating %}filled{% endif %}">★</span>
+              {% endfor %}
+              {% endwith %}
+            </div>
+            {% if app.driver.specialty_list %}
+            <div class="mt-8">
+               <span class="badge badge-orange" style="font-size:0.7rem;">{{ app.driver.specialty_list.0 }}</span>
+            </div>
+            {% endif %}
+          </div>
+        {% empty %}
+        <div class="pipeline-empty">No applicants yet</div>
+        {% endfor %}
+      </div>
+
+      <!-- REVIEWED Column -->
+      <div class="pipeline-column">
+        <div class="pipeline-column-header">
+          <span>REVIEWED</span>
+          <span class="pipeline-count">{{ pipeline.reviewed|length }}</span>
+        </div>
+        {% for app in pipeline.reviewed %}
+        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=candidates'" style="cursor:pointer;">
+            <div class="d-flex gap-12 align-center">
+              <a href="{% url 'drivers:driver_profile_public' app.driver.id %}">
+                <div class="avatar avatar-md avatar-green">{{ app.driver.initials }}</div>
+              </a>
+              <div>
+                <div class="fw-600">
+                  <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" style="color:var(--text); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    {{ app.driver.user.get_full_name }}
+                  </a>
+                </div>
+                <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }} yrs</div>
+              </div>
+            </div>
+            <div class="stars mt-8">
+              {% with rating=app.driver.avg_rating %}
+              {% for i in "12345" %}
+              <span class="star {% if forloop.counter <= rating %}filled{% endif %}">★</span>
+              {% endfor %}
+              {% endwith %}
+            </div>
+            {% if app.flagged_by_dispatcher %}
+            <div class="mt-8">
+              <span class="badge badge-red" style="font-size:0.7rem;">Flagged by dispatcher</span>
+            </div>
+            {% elif app.driver.specialty_list %}
+            <div class="mt-8">
+              <span class="badge badge-orange" style="font-size:0.7rem;">{{ app.driver.specialty_list.0 }}</span>
+            </div>
+            {% endif %}
+          </div>
+        {% empty %}
+        <div class="pipeline-empty">No reviewed candidates</div>
+        {% endfor %}
+      </div>
+
+      <!-- INTERVIEW Column -->
+      <div class="pipeline-column">
+        <div class="pipeline-column-header">
+          <span>INTERVIEW</span>
+          <span class="pipeline-count">{{ pipeline.interview|length }}</span>
+        </div>
+        {% for app in pipeline.interview %}
+        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=interviewing'" style="cursor:pointer;">
+            <div class="d-flex gap-12 align-center">
+              <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" onclick="event.stopPropagation();">
+                <div class="avatar avatar-md avatar-navy">{{ app.driver.initials }}</div>
+              </a>
+              <div>
+                <div class="fw-600">
+                  <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" onclick="event.stopPropagation();" style="color:var(--text); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    {{ app.driver.user.get_full_name }}
+                  </a>
+                </div>
+                <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }} yrs</div>
+              </div>
+            </div>
+            <div class="stars mt-8">
+              {% with rating=app.driver.avg_rating %}
+              {% for i in "12345" %}
+              <span class="star {% if forloop.counter <= rating %}filled{% endif %}">★</span>
+              {% endfor %}
+              {% endwith %}
+            </div>
+            {% if app.interview_time %}
+            <div class="mt-8">
+              <span class="text-xs text-muted">{{ app.interview_time|date:"D M d · g:ia" }}</span>
+            </div>
+            {% endif %}
+          </div>
+        {% empty %}
+        <div class="pipeline-empty">No interviews scheduled</div>
+        {% endfor %}
+      </div>
+
+      <!-- HIRED Column -->
+      <div class="pipeline-column">
+        <div class="pipeline-column-header">
+          <span>HIRED</span>
+          <span class="pipeline-count">{{ pipeline.hired|length }}</span>
+        </div>
+        {% for app in pipeline.hired %}
+        <div class="pipeline-card hired-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=candidates'" style="cursor:pointer;">
+            <div class="d-flex gap-12 align-center">
+              <a href="{% url 'drivers:driver_profile_public' app.driver.id %}">
+                <div class="avatar avatar-md avatar-green">{{ app.driver.initials }}</div>
+              </a>
+              <div>
+                <div class="fw-600">
+                  <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" style="color:var(--text); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    {{ app.driver.user.get_full_name }}
+                  </a>
+                </div>
+                <div class="text-xs text-muted">{{ app.driver.get_cdl_class_display }} · {{ app.driver.years_experience }} yrs</div>
+              </div>
+            </div>
+            <div class="stars mt-8">
+              {% with rating=app.driver.avg_rating %}
+              {% for i in "12345" %}
+              <span class="star {% if forloop.counter <= rating %}filled{% endif %}">★</span>
+              {% endfor %}
+              {% endwith %}
+            </div>
+            <div class="mt-8">
+              <span class="badge badge-green" style="font-size:0.7rem;">Hired {{ app.updated_at|date:"M d" }}</span>
+            </div>
+          </div>
+        {% empty %}
+        <div class="pipeline-empty">No hires yet</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

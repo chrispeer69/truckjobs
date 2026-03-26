@@ -57,7 +57,15 @@
             <div class="pool-row">
                 <div class="pool-dot {% if pool.is_active %}active{% else %}coming-soon{% endif %}"></div>
                 <div class="pool-name">
-                    <a href="{% url 'companies:dashboard' %}?tab=pool" class="text-brand">
+                    {% if user.is_authenticated and user.role == 'company' %}
+                        {% if has_active_jobs and active_job %}
+                            <a href="{% url 'companies:job_dashboard' active_job.pk %}?tab=search" class="text-brand">
+                        {% else %}
+                            <a href="{% url 'companies:post_job' %}" class="text-brand" onclick="alert('Please Post a Job first! You must have an active job listing to invite drivers from the city pool. This ensures transparent compensation, benefits, and schedule details for the driver.');">
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'jobs:list' %}?pool={{ pool.id }}" class="text-brand">
+                    {% endif %}
                         {{ pool.name }}, {{ pool.state }}
                     </a>
                     {% if user_pool and user_pool.pk == pool.pk %}<span class="badge badge-orange"

@@ -3,36 +3,35 @@
 
 {% block content %}
 <section class="section" style="padding-top:40px;">
+  <style>
+    @media (max-width: 768px) { .pipeline-desktop-btn { display: none !important; } }
+    @media (min-width: 769px) { .pipeline-mobile-btn { display: none !important; } }
+  </style>
   <div class="container">
-    <div class="d-flex align-center justify-between mb-24">
+    <!-- Header -->
+    <div class="dashboard-header">
       <div>
-        <span class="eyebrow">{{ profile.company_name }}</span>
-        <h2>Dispatcher Dashboard</h2>
+        <h1 class="dashboard-company-name">{{ profile.company_name }}</h1>
+        <p class="text-sm text-muted">
+          {{ profile.city }}, {{ profile.state }} · {{ stats.open_positions }} active listing{{ stats.open_positions|pluralize }} · {{ stats.total_applicants }} applicant{{ stats.total_applicants|pluralize }} in pipeline
+        </p>
       </div>
-      <a href="{% url 'companies:post_job' %}" class="btn btn-primary">+ Post New Job</a>
+      <a href="{% url 'companies:post_job' %}" class="btn btn-primary btn-lg">+ Post New Job</a>
     </div>
 
+    <!-- Tabs -->
     <div class="tab-bar">
-      <a href="?tab=pipeline" class="tab-link {% if tab == 'pipeline' %}active{% endif %}">My Jobs</a>
-      <a href="?tab=credentials" class="tab-link {% if tab == 'credentials' %}active{% endif %}">Credential Alerts</a>
+      <a href="?tab=jobs" class="tab-link {% if not tab or tab == 'jobs' %}active{% endif %}">My Jobs</a>
+      <a href="?tab=credentials" class="tab-link {% if tab == 'credentials' %}active{% endif %}">
+        Credential Alerts
+        {% if cred_alerts %}<span class="tab-badge">{{ cred_alerts|length }}</span>{% endif %}
+      </a>
     </div>
 
-    {% if tab == 'pipeline' %}
-    <div class="d-flex gap-24 mb-24">
-      <div class="card" style="flex:1;text-align:center;">
-        <div class="stat-number text-brand">{{ stats.open_positions }}</div>
-        <div class="text-sm text-muted">Open Positions</div>
-      </div>
-      <div class="card" style="flex:1;text-align:center;">
-        <div class="stat-number text-navy">{{ stats.total_applicants }}</div>
-        <div class="text-sm text-muted">Total Applicants</div>
-      </div>
-      <div class="card" style="flex:1;text-align:center;">
-        <div class="stat-number text-green">{{ stats.interviews_this_week }}</div>
-        <div class="text-sm text-muted">Interviews This Week</div>
-      </div>
-    </div>
 
+
+    {% if not tab or tab == 'jobs' %}
+    <!-- My Jobs -->
     <div class="items-grid">
       {% for job in company_jobs %}
       <div class="card">
@@ -50,7 +49,8 @@
             <span class="text-brand">{{ job.applicant_count }}</span> Applicants
           </div>
           <div class="d-flex gap-8 align-center">
-            <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary btn-sm">Manage Pipeline →</a>
+            <a href="{% url 'companies:job_kanban' job.pk %}" class="btn btn-secondary btn-sm pipeline-desktop-btn">Manage Pipeline →</a>
+            <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary btn-sm pipeline-mobile-btn">Manage Pipeline →</a>
             <a href="{% url 'companies:edit_job' job.pk %}" class="btn btn-primary btn-sm" title="Edit Job"
               style="padding: 4px 12px; font-size: 14px;">✏️</a>
             <form method="post" action="{% url 'companies:close_job' job.pk %}" style="margin: 0;"
@@ -68,8 +68,6 @@
         <a href="{% url 'companies:post_job' %}" class="btn btn-primary">Post Your First Job</a>
       </div>
       {% endfor %}
-
-
     </div>
 
     {% elif tab == 'credentials' %}

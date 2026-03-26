@@ -124,19 +124,7 @@ def driver_profile(request):
                 messages.warning(request, 'No file selected for upload.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
-        elif action == 'reply_question':
-            from jobs.models import ApplicationMessage, JobApplication
-            app_id = request.POST.get('app_id')
-            content = request.POST.get('content', '')[:600]
-            if app_id and content:
-                application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
-                ApplicationMessage.objects.create(
-                    application=application,
-                    sender_is_company=False,
-                    content=content
-                )
-                messages.success(request, 'Reply sent to dispatcher.')
-            return redirect(reverse('drivers:profile') + '?tab=applications')
+
 
         elif action == 'withdraw_app':
             from jobs.models import JobApplication
@@ -181,6 +169,9 @@ def driver_profile(request):
                     sender_is_company=False,
                     content=content
                 )
+                
+                from core.emails import send_message_mail
+                send_message_mail(request.user.get_full_name(), application.job.company.user, application, content)
                 # If was invited, maybe auto-accept? No, user said "respond"
                 # But typically responding implies starting the interview
                 if application.stage == 'invited':
@@ -244,4 +235,43 @@ def quick_apply(request, job_id):
 @login_required
 def driver_profile_public(request, driver_id):
     driver = get_object_or_404(DriverProfile, pk=driver_id)
-    return render(request, 'drivers/public_profile.html', {'driver': driver})
+    reviews = driver.reviews.select_related('company').order_by('-created_at')
+    return render(request, 'drivers/public_profile.html', {
+        'driver': driver,
+        'reviews': reviews
+    })
+
+@login_required
+def leave_company_review(request, company_id):
+    if request.method != 'POST' or request.user.role != 'driver':
+        return redirect('/')
+
+    from companies.models import CompanyProfile, CompanyReview
+    from jobs.models import JobApplication
+
+    company = get_object_or_404(CompanyProfile, pk=company_id)
+    driver = request.user.driver_profile
+
+    # SECURITY CHECK: Must be hired
+    if not JobApplication.objects.filter(driver=driver, job__company=company, stage='hired').exists():
+        messages.error(request, "You can only review companies that have hired you.")
+        return redirect('drivers:profile')
+
+    # One review per company per driver
+    if CompanyReview.objects.filter(driver=driver, company=company).exists():
+        messages.error(request, "You have already reviewed this company.")
+        return redirect('drivers:profile')
+
+    CompanyReview.objects.create(
+        driver=driver,
+        company=company,
+        professionalism=int(request.POST.get('professionalism', 5)),
+        communication=int(request.POST.get('communication', 5)),
+        pay_reliability=int(request.POST.get('pay_reliability', 5)),
+        equipment_quality=int(request.POST.get('equipment_quality', 5)),
+        comment=request.POST.get('comment', '').strip()
+    )
+    
+    messages.success(request, f"Review submitted for {company.company_name}!")
+    return redirect(request.META.get('HTTP_REFERER', 'drivers:profile'))
+

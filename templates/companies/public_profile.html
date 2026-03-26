@@ -10,6 +10,14 @@
                 <div>
                     <h2>{{ company.company_name }}</h2>
                     <div class="text-muted">Part of {{ company.city_pool|default:"No pool specified" }}</div>
+                    <div class="stars mt-8 mb-8" style="font-size: 1.2rem;">
+                        {% with rating=company.avg_rating|default:5 %}
+                        {% for i in "12345" %}
+                        <span class="star {% if forloop.counter <= rating %}filled{% endif %}" style="{% if forloop.counter <= rating %}color:var(--amber);{% else %}color:var(--border);{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="text-sm text-muted ml-8" style="vertical-align: middle;">({{ company.total_reviews }} reviews)</span>
+                        {% endwith %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -33,7 +41,7 @@
                 </div>
                 <h4 class="mb-8">{{ job.title }}</h4>
                 <div class="text-sm text-muted mb-16">{{ job.get_category_display }} · {{ job.location }}</div>
-                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-secondary btn-sm"
+                <a href="{% url 'jobs:detail' job.pk %}" class="btn btn-secondary btn-sm"
                     style="width:100%;text-align:center;">View Details</a>
             </div>
             {% empty %}
@@ -41,6 +49,31 @@
                 <div class="text-muted">No active openings right now.</div>
             </div>
             {% endfor %}
+        </div>
+
+        <h3 class="mb-16 mt-32">Company Reviews</h3>
+        <div class="card mb-24">
+            {% if reviews %}
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                {% for review in reviews %}
+                <div style="border-bottom: 1px solid var(--border); padding-bottom:16px;">
+                    <div class="d-flex justify-between align-center mb-8">
+                        <strong>{{ review.driver.user.get_full_name }}</strong>
+                        <div class="text-sm text-muted">{{ review.created_at|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="d-flex align-center gap-8 mb-8 text-sm">
+                        <span style="color:var(--amber);">{{ review.overall_average }} ★</span>
+                        <span class="text-muted">· Professionalism: {{ review.professionalism }}, Pay: {{ review.pay_reliability }}</span>
+                    </div>
+                    {% if review.comment %}
+                    <p class="text-sm text-muted" style="margin:0;">"{{ review.comment }}"</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted text-sm" style="margin: 0;">No driver reviews yet.</p>
+            {% endif %}
         </div>
     </div>
 </section>

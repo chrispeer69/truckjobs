@@ -196,28 +196,38 @@ h5 {
 
 .navbar-nav {
   display: flex;
-  align-items: center;
-  gap: 32px;
   list-style: none;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
 }
 
 .navbar-nav a {
+  text-decoration: none;
+  color: var(--text);
   font-weight: 500;
   font-size: 0.95rem;
-  color: var(--muted);
-  transition: color 0.2s;
-  padding: 8px 0;
+  transition: color 0.2s ease;
 }
 
 .navbar-nav a:hover,
 .navbar-nav a.active {
-  color: var(--text);
+  color: var(--brand);
 }
 
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 4px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -699,6 +709,66 @@ h5 {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   DASHBOARD HEADER
+   ═══════════════════════════════════════════════════════════ */
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.dashboard-company-name {
+  font-size: 2.5rem;
+  margin-bottom: 4px;
+}
+
+/* ─── Stats Row ─── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface2);
+  border-radius: var(--rl);
+  padding: 20px 24px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 2.25rem;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* ─── Tab Badge (credential count) ─── */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 100px;
+  background: var(--red);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 6px;
+  padding: 0 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════
    PIPELINE / KANBAN
    ═══════════════════════════════════════════════════════════ */
 .pipeline {
@@ -712,7 +782,7 @@ h5 {
   background: var(--surface2);
   border-radius: var(--rl);
   padding: 16px;
-  min-width: 250px;
+  min-width: 220px;
   min-height: 300px;
 }
 
@@ -722,7 +792,9 @@ h5 {
   justify-content: space-between;
   margin-bottom: 12px;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  color: var(--muted);
 }
 
 .pipeline-count {
@@ -734,23 +806,42 @@ h5 {
   font-weight: 600;
 }
 
+.pipeline-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.pipeline-card-link .pipeline-card {
+  margin-bottom: 0;
+}
+
 .pipeline-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 14px;
   margin-bottom: 10px;
-  cursor: default;
-  transition: box-shadow 0.15s;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
 }
 
 .pipeline-card:hover {
   box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 .pipeline-card.hired-card {
   background: #f4fbe9;
   border-color: #c4dda8;
+}
+
+.pipeline-empty {
+  text-align: center;
+  padding: 24px 12px;
+  font-size: 0.85rem;
+  color: var(--hint);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1625,6 +1716,22 @@ h5 {
 
   .navbar-nav {
     display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    flex-direction: column;
+    padding: 16px 24px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .navbar-nav.active {
+    display: flex;
+  }
+  .mobile-menu-toggle {
+    display: block;
   }
 
   .stats-bar .container {
@@ -1662,4 +1769,11 @@ h5 {
   .hero-buttons {
     flex-direction: column;
   }
+}
+/* Responsive Visibility Utilities */
+@media (min-width: 769px) {
+  .mobile-only { display: none !important; }
+}
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
 }

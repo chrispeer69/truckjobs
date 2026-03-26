@@ -8,7 +8,16 @@
   <title>{% block title %}DrivingJobs.online{% endblock %} — Tow Truck & Box Truck Jobs</title>
   <meta name="description"
     content="{% block meta_description %}The job board built for tow truck and box truck drivers. Find driving jobs, build your reputation, and get hired.{% endblock %}">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.0.1">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.1.1">
+  <style>
+    @media (max-width: 768px) {
+      .desktop-only { display: none !important; }
+      .navbar-logo { font-size: 1.2rem !important; }
+    }
+    @media (min-width: 769px) {
+      .mobile-only { display: none !important; }
+    }
+  </style>
 </head>
 
 <body>
@@ -19,8 +28,12 @@
         <span class="logo-driving">driving</span><span class="logo-jobs">jobs.online</span>
       </a>
       <ul class="navbar-nav">
+        {% if user.is_authenticated and user.role == 'company' %}
+        <!-- Companies do not need to browse jobs -->
+        {% else %}
         <li><a href="{% url 'jobs:list' %}"
             class="{% if request.resolver_match.namespace == 'jobs' %}active{% endif %}">Browse Jobs</a></li>
+        {% endif %}
         <li><a href="{% url 'pools:list' %}"
             class="{% if request.resolver_match.namespace == 'pools' %}active{% endif %}">City Pools</a></li>
         {% if user.is_authenticated and user.role == 'driver' %}
@@ -33,14 +46,21 @@
             class="{% if request.resolver_match.url_name == 'post_job' %}active{% endif %}">Post a Job</a></li>
         {% endif %}
       </ul>
-      <div class="navbar-actions">
-        {% if user.is_authenticated %}
-        <span class="text-sm text-muted">{{ user.get_full_name|default:user.username }}</span>
-        <a href="{% url 'core:logout' %}" class="btn btn-ghost btn-sm">Sign Out</a>
-        {% else %}
-        <a href="{% url 'core:login' %}" class="btn btn-ghost btn-sm">Sign In</a>
-        <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-sm">Join Free</a>
-        {% endif %}
+      <div class="d-flex align-center gap-16">
+        <div class="navbar-actions">
+          {% if user.is_authenticated %}
+          <span class="text-sm text-muted desktop-only">{{ user.get_full_name|default:user.username }}</span>
+          <a href="{% url 'core:logout' %}" class="btn btn-ghost btn-sm">Sign Out</a>
+          {% else %}
+          <a href="{% url 'core:login' %}" class="btn btn-ghost btn-sm">Sign In</a>
+          <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-sm desktop-only">Join Free</a>
+          {% endif %}
+        </div>
+        <button class="mobile-menu-toggle" aria-label="Toggle navigation">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -70,6 +90,17 @@
   </footer>
 
   <script src="{% static 'js/locations.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      const nav = document.querySelector('.navbar-nav');
+      if (toggle && nav) {
+        toggle.addEventListener('click', () => {
+          nav.classList.toggle('active');
+        });
+      }
+    });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 

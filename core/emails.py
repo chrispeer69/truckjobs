@@ -78,3 +78,47 @@ def send_password_reset_otp(user, otp_code):
         [user.email],
         fail_silently=False,
     )
+
+def send_message_mail(sender_name, recipient, application, content=None):
+    subject = f"New Message from {sender_name}"
+    
+    message = (
+        f"Hi {recipient.first_name or recipient.username},\n\n"
+        f"You have a new message from {sender_name} regarding the application for '{application.job.title}'.\n\n"
+    )
+    if content:
+        message += f"\"{content}\"\n\n"
+        
+    message += (
+        f"Log in to your dashboard to reply.\n\n"
+        f"Thanks,\nThe TruckJobs Team"
+    )
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [recipient.email],
+        fail_silently=False,
+    )
+
+def send_job_match_mail(driver, job):
+    subject = f"New Job Match: {job.title} in {job.location}"
+    
+    message = (
+        f"Hi {driver.user.first_name or driver.user.username},\n\n"
+        f"We found a new job that matches your profile!\n\n"
+        f"Job: {job.title}\n"
+        f"Company: {job.company.company_name}\n"
+        f"Location: {job.location}\n\n"
+        f"Log in to your TruckJobs dashboard to review and apply.\n\n"
+        f"Thanks,\nThe TruckJobs Team"
+    )
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [driver.user.email],
+        fail_silently=False,
+    )

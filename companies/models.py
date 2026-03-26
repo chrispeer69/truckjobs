@@ -56,6 +56,34 @@ class CompanyProfile(models.Model):
             updated_at__gte=week_ago
         ).count()
 
+    @property
+    def avg_rating(self):
+        reviews = self.reviews_received.all()
+        if not reviews:
+            return 5.0
+        return round(sum(r.overall_average for r in reviews) / reviews.count(), 1)
+
+    @property
+    def total_reviews(self):
+        return self.reviews_received.count()
+
+class CompanyReview(models.Model):
+    company = models.ForeignKey(CompanyProfile, on_delete=models.CASCADE, related_name='reviews_received')
+    driver = models.ForeignKey('drivers.DriverProfile', on_delete=models.CASCADE, related_name='reviews_left_for_companies')
+    professionalism = models.PositiveSmallIntegerField(default=5)
+    communication = models.PositiveSmallIntegerField(default=5)
+    pay_reliability = models.PositiveSmallIntegerField(default=5)
+    equipment_quality = models.PositiveSmallIntegerField(default=5)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review of {self.company} by {self.driver} — {self.overall_average}★"
+
+    @property
+    def overall_average(self):
+        return round((self.professionalism + self.communication + self.pay_reliability + self.equipment_quality) / 4, 1)
+
 class CredentialAccessRequest(models.Model):
     dispatcher = models.ForeignKey(CompanyProfile, on_delete=models.CASCADE, related_name='access_requests')
     driver = models.ForeignKey('drivers.DriverProfile', on_delete=models.CASCADE, related_name='access_requests_received')
