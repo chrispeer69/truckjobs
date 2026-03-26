@@ -6,6 +6,7 @@ def pool_list(request):
     pools = CityPool.objects.all().order_by('-is_active', 'state', 'name')
     has_active_jobs = False
     active_job = None
+    user_pool = None
     if request.user.is_authenticated:
         if request.user.role == 'driver':
             try:

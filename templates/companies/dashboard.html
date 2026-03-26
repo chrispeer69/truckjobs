@@ -32,9 +32,9 @@
 
     {% if not tab or tab == 'jobs' %}
     <!-- My Jobs -->
-    <div class="items-grid">
+    <div class="items-grid" style="display: flex; flex-direction: column; gap: 24px;">
       {% for job in company_jobs %}
-      <div class="card">
+      <div class="card" style="margin-bottom: 0; padding-bottom: 24px;">
         <div class="d-flex align-center justify-between mb-8">
           <span class="badge {% if job.status == 'active' %}badge-green{% else %}badge-gray{% endif %}">
             {{ job.get_status_display }}
@@ -44,21 +44,22 @@
         <h3 class="mb-8">{{ job.title }}</h3>
         <div class="text-sm text-muted mb-16">{{ job.get_category_display }} · {{ job.location }}</div>
 
-        <div class="d-flex align-center justify-between mt-16 pt-16" style="border-top:1px solid var(--border);">
+        <div class="d-flex align-center justify-between mt-24 pt-16 flex-wrap gap-12" style="border-top:1px solid var(--border);">
           <div class="text-sm fw-600">
             <span class="text-brand">{{ job.applicant_count }}</span> Applicants
           </div>
-          <div class="d-flex gap-8 align-center">
+          <div class="d-flex gap-12 align-center dashboard-card-actions">
             <a href="{% url 'companies:job_kanban' job.pk %}" class="btn btn-secondary btn-sm pipeline-desktop-btn">Manage Pipeline →</a>
             <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary btn-sm pipeline-mobile-btn">Manage Pipeline →</a>
-            <a href="{% url 'companies:edit_job' job.pk %}" class="btn btn-primary btn-sm" title="Edit Job"
-              style="padding: 4px 12px; font-size: 14px;">✏️</a>
-            <form method="post" action="{% url 'companies:close_job' job.pk %}" style="margin: 0;"
-              onsubmit="return confirm('Are you sure you want to close this job?');">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-red btn-sm" title="Close Job"
-                style="padding: 4px 12px; font-size: 14px;">🗑️</button>
-            </form>
+            <div class="d-flex gap-4">
+              <a href="{% url 'companies:edit_job' job.pk %}" class="btn btn-primary btn-sm"
+                style="padding: 4px 8px;" title="Edit Job">✏️</a>
+              <form action="{% url 'companies:close_job' job.pk %}" method="POST" style="display:inline;"
+                onsubmit="return confirm('Are you sure you want to close this job?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-sm" style="padding: 4px 8px; color: var(--error);" title="Close Job">🗑️</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

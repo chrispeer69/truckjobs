@@ -175,8 +175,9 @@
             Here is how we compare to the old way of hiring.
         </p>
 
-        <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--rl); padding: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-            <table class="comparison-table" style="margin: 0; border: none; color: var(--text); min-width: 450px;">
+        <!-- Desktop Comparison Table -->
+        <div class="desktop-only" style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--rl); padding: 8px;">
+            <table class="comparison-table" style="margin: 0; border: none; color: var(--text);">
                 <thead>
                     <tr>
                         <th style="background: var(--surface2); color: var(--text);">Feature</th>
@@ -212,6 +213,43 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Comparison Cards -->
+        <div class="mobile-only" style="display:flex; flex-direction:column; gap:16px;">
+            <div class="card" style="text-align:left; background: white; color: var(--text);">
+                <h3 class="mb-16 text-brand">Why us?</h3>
+                <div class="d-flex flex-direction-column gap-16">
+                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
+                        <div class="text-xs text-muted mb-4">PRICING</div>
+                        <div class="d-flex justify-between align-center">
+                            <span class="text-sm">Indeed: Pay-Per-Click</span>
+                            <span class="badge badge-green">Us: Free</span>
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
+                        <div class="text-xs text-muted mb-4">FOCUS</div>
+                        <div class="d-flex justify-between align-center">
+                            <span class="text-sm">Indeed: Investors</span>
+                            <span class="badge badge-brand-light" style="color:var(--brand);">Us: Drivers</span>
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
+                        <div class="text-xs text-muted mb-4">TARGETING</div>
+                        <div class="d-flex justify-between align-center">
+                            <span class="text-sm">Indeed: Generic</span>
+                            <span class="badge badge-navy">Us: Specialized</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-muted mb-4">REPUTATION</div>
+                        <div class="d-flex justify-between align-center">
+                            <span class="text-sm">Indeed: None</span>
+                            <span class="badge badge-orange">Us: Portable Score</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

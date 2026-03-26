@@ -45,20 +45,33 @@
         <li><a href="{% url 'companies:post_job' %}"
             class="{% if request.resolver_match.url_name == 'post_job' %}active{% endif %}">Post a Job</a></li>
         {% endif %}
+        
+        <!-- Mobile-only actions -->
+        <li class="mobile-only" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border);">
+          {% if user.is_authenticated %}
+          <div class="mb-16 fw-600">{{ user.get_full_name|default:user.username }}</div>
+          <a href="{% url 'core:logout' %}" class="btn btn-secondary btn-block">Sign Out</a>
+          {% else %}
+          <a href="{% url 'core:login' %}" class="btn btn-primary btn-block">Sign In</a>
+          {% endif %}
+        </li>
       </ul>
       <div class="d-flex align-center gap-16">
-        <div class="navbar-actions">
+        <div class="navbar-actions desktop-only">
           {% if user.is_authenticated %}
-          <span class="text-sm text-muted desktop-only">{{ user.get_full_name|default:user.username }}</span>
+          <span class="text-sm text-muted mr-16">{{ user.get_full_name|default:user.username }}</span>
           <a href="{% url 'core:logout' %}" class="btn btn-ghost btn-sm">Sign Out</a>
           {% else %}
           <a href="{% url 'core:login' %}" class="btn btn-ghost btn-sm">Sign In</a>
-          <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-sm desktop-only">Join Free</a>
+          <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-sm">Join Free</a>
           {% endif %}
         </div>
         <button class="mobile-menu-toggle" aria-label="Toggle navigation">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+          <svg class="icon-menu" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg class="icon-close" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="display:none;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
@@ -94,9 +107,17 @@
     document.addEventListener('DOMContentLoaded', () => {
       const toggle = document.querySelector('.mobile-menu-toggle');
       const nav = document.querySelector('.navbar-nav');
+      const menuIcon = toggle ? toggle.querySelector('.icon-menu') : null;
+      const closeIcon = toggle ? toggle.querySelector('.icon-close') : null;
+
       if (toggle && nav) {
         toggle.addEventListener('click', () => {
-          nav.classList.toggle('active');
+          const isActive = nav.classList.toggle('active');
+          if (menuIcon && closeIcon) {
+            menuIcon.style.display = isActive ? 'none' : 'block';
+            closeIcon.style.display = isActive ? 'block' : 'none';
+          }
+          document.body.style.overflow = isActive ? 'hidden' : '';
         });
       }
     });
