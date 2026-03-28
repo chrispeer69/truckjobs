@@ -223,21 +223,66 @@ h5 {
 
 .mobile-menu-toggle {
   display: none;
-  background: none;
-  border: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
   cursor: pointer;
-  color: var(--text);
   padding: 8px;
   border-radius: 8px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
 }
 
 .mobile-menu-toggle:hover {
-  background: var(--surface2);
+  background: var(--border);
 }
 
-.mobile-menu-toggle svg {
+.hamburger-box {
+  width: 20px;
+  height: 18px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
   display: block;
+  top: 50%;
+  margin-top: -1px;
+}
+
+.hamburger-inner,
+.hamburger-inner::before,
+.hamburger-inner::after {
+  width: 20px;
+  height: 2px;
+  background-color: var(--text);
+  border-radius: 4px;
+  position: absolute;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hamburger-inner::before,
+.hamburger-inner::after {
+  content: "";
+  display: block;
+}
+
+.hamburger-inner::before { top: -6px; }
+.hamburger-inner::after { bottom: -6px; }
+
+/* Hamburger Active State */
+.mobile-menu-toggle.is-active .hamburger-inner {
+  background-color: transparent;
+}
+
+.mobile-menu-toggle.is-active .hamburger-inner::before {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-toggle.is-active .hamburger-inner::after {
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1528,6 +1573,70 @@ h5 {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--rl);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 480px;
+  transform: translateY(20px);
+  transition: transform 0.2s ease;
+  overflow: hidden;
+}
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-body {
+  padding: 24px;
+  color: var(--text);
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════
    FOOTER
    ═══════════════════════════════════════════════════════════ */
 .footer {
@@ -1680,6 +1789,44 @@ h5 {
   flex: 1;
 }
 
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dashboard-actions > * {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 120px;
+}
+
+.dashboard-actions button.btn {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.fw-400 { font-weight: 400; }
+.fw-500 { font-weight: 500; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+.fw-800 { font-weight: 800; }
+
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
@@ -1732,19 +1879,95 @@ h5 {
     grid-template-columns: 1fr;
   }
 
+  /* ─── Mobile Comparison Redesign ─── */
+  .m-compare-grid {
+    display: grid;
+    grid-template-columns: 34% 33% 33%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    color: var(--text);
+    padding: 12px 8px;
+    margin-top: 16px;
+    align-items: stretch;
+  }
+  .m-comp-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 4px;
+    font-size: 0.75rem;
+    border-bottom: 1px solid var(--border); /* Soft divider */
+  }
+  .m-comp-header {
+    justify-content: flex-end;
+    padding-bottom: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .m-comp-label {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text);
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+  .m-comp-val-indeed {
+    color: var(--muted);
+    text-align: center;
+    font-weight: 500;
+  }
+  .m-highlight {
+    background-color: var(--brand-light);
+    color: var(--brand-dark);
+    text-align: center;
+    font-weight: 700;
+    position: relative; /* In case we need overlapping */
+  }
+  .m-highlight-top {
+    border-radius: 12px 12px 0 0;
+  }
+  .m-highlight-bottom {
+    border-radius: 0 0 12px 12px;
+    border-bottom: none !important;
+  }
+  .m-comp-cell.last {
+    border-bottom: none;
+  }
+  .m-comp-btn {
+    background: var(--brand);
+    color: white;
+    border-radius: 100px;
+    padding: 8px 0;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(216,90,48,0.3);
+    display: inline-block;
+    width: 90%;
+    margin: 8px auto 0;
+  }
+
+
   .navbar-nav {
     display: none;
     position: fixed;
     top: 64px;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0; /* Fallback for older browsers */
+    height: calc(100dvh - 64px);
     background: white;
     flex-direction: column;
-    padding: 32px 24px;
-    gap: 24px;
+    padding: 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    gap: 20px;
     z-index: 2000;
     overflow-y: auto;
+    /* Prevent rubber banding on iOS if not scrollable */
+    overscroll-behavior-y: none;
   }
   .navbar-nav.active {
     display: flex;
@@ -1756,9 +1979,7 @@ h5 {
     border-bottom: 1px solid var(--border);
   }
   .mobile-menu-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
   }
   .dashboard-header {
     flex-direction: column;

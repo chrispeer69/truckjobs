@@ -87,6 +87,7 @@ class CompanyReview(models.Model):
 class CredentialAccessRequest(models.Model):
     dispatcher = models.ForeignKey(CompanyProfile, on_delete=models.CASCADE, related_name='access_requests')
     driver = models.ForeignKey('drivers.DriverProfile', on_delete=models.CASCADE, related_name='access_requests_received')
+    credential_type = models.CharField(max_length=20, default='all')
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -96,4 +97,4 @@ class CredentialAccessRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.dispatcher.company_name} -> {self.driver.user.get_full_name()} ({self.status})"
+        return f"{self.dispatcher.company_name} -> {self.driver.user.get_full_name()} ({self.credential_type} - {self.status})"

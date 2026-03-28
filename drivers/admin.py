@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DriverProfile, Credential, DriverReview
+from .models import DriverProfile, Credential, DriverReview, DriverDocument
 
 
 @admin.register(DriverProfile)
@@ -24,3 +24,12 @@ class DriverReviewAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('driver__user__first_name', 'driver__user__last_name', 'company__company_name')
     raw_id_fields = ('driver', 'company')
+
+
+@admin.register(DriverDocument)
+class DriverDocumentAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'name', 'is_verified', 'uploaded_at')
+    list_filter = ('is_verified', 'uploaded_at')
+    list_editable = ('is_verified',)
+    search_fields = ('driver__user__first_name', 'driver__user__last_name', 'name')
+    raw_id_fields = ('driver',)

@@ -215,40 +215,41 @@
             </table>
         </div>
 
-        <!-- Mobile Comparison Cards -->
-        <div class="mobile-only" style="display:flex; flex-direction:column; gap:16px;">
-            <div class="card" style="text-align:left; background: white; color: var(--text);">
-                <h3 class="mb-16 text-brand">Why us?</h3>
-                <div class="d-flex flex-direction-column gap-16">
-                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
-                        <div class="text-xs text-muted mb-4">PRICING</div>
-                        <div class="d-flex justify-between align-center">
-                            <span class="text-sm">Indeed: Pay-Per-Click</span>
-                            <span class="badge badge-green">Us: Free</span>
-                        </div>
-                    </div>
-                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
-                        <div class="text-xs text-muted mb-4">FOCUS</div>
-                        <div class="d-flex justify-between align-center">
-                            <span class="text-sm">Indeed: Investors</span>
-                            <span class="badge badge-brand-light" style="color:var(--brand);">Us: Drivers</span>
-                        </div>
-                    </div>
-                    <div style="border-bottom: 1px solid var(--border); padding-bottom:12px;">
-                        <div class="text-xs text-muted mb-4">TARGETING</div>
-                        <div class="d-flex justify-between align-center">
-                            <span class="text-sm">Indeed: Generic</span>
-                            <span class="badge badge-navy">Us: Specialized</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-xs text-muted mb-4">REPUTATION</div>
-                        <div class="d-flex justify-between align-center">
-                            <span class="text-sm">Indeed: None</span>
-                            <span class="badge badge-orange">Us: Portable Score</span>
-                        </div>
-                    </div>
+        <!-- Mobile Comparison Grid -->
+        <div class="mobile-only mt-32">
+            <h3 class="mb-16 text-brand fw-800" style="font-size: 1.5rem; text-align: left; padding-left: 8px;">Why us?</h3>
+            <div class="m-compare-grid">
+                <!-- Header -->
+                <div class="m-comp-cell m-comp-header m-comp-label" style="border-bottom: none; font-size: 0.9rem;">Feature</div>
+                <div class="m-comp-cell m-comp-header m-comp-val-indeed" style="border-bottom: none; font-weight: 700;">Indeed & Tech</div>
+                <div class="m-comp-cell m-comp-header m-highlight m-highlight-top" style="border-bottom: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;">
+                  DrivingJobs.online
                 </div>
+
+                <!-- Row 1: Pricing -->
+                <div class="m-comp-cell m-comp-label">Pricing</div>
+                <div class="m-comp-cell m-comp-val-indeed">Pay-Per-Click</div>
+                <div class="m-comp-cell m-highlight text-brand">Always Free</div>
+
+                <!-- Row 2: Focus -->
+                <div class="m-comp-cell m-comp-label">Focus</div>
+                <div class="m-comp-cell m-comp-val-indeed">Investor Profit</div>
+                <div class="m-comp-cell m-highlight text-brand">Driver Growth</div>
+
+                <!-- Row 3: Targeting -->
+                <div class="m-comp-cell m-comp-label">Targeting</div>
+                <div class="m-comp-cell m-comp-val-indeed">Generic (All Jobs)</div>
+                <div class="m-comp-cell m-highlight text-brand">Trucking ONLY</div>
+
+                <!-- Row 4: Reputation -->
+                <div class="m-comp-cell m-comp-label">Reputation</div>
+                <div class="m-comp-cell m-comp-val-indeed">None</div>
+                <div class="m-comp-cell m-highlight text-brand">Portable Score</div>
+
+                <!-- Row 5: Relationship -->
+                <div class="m-comp-cell m-comp-label last">Relationship</div>
+                <div class="m-comp-cell m-comp-val-indeed last">Transactional</div>
+                <div class="m-comp-cell m-highlight text-brand m-highlight-bottom last">Community</div>
             </div>
         </div>
 

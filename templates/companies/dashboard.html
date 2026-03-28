@@ -26,6 +26,7 @@
         Credential Alerts
         {% if cred_alerts %}<span class="tab-badge">{{ cred_alerts|length }}</span>{% endif %}
       </a>
+      <a href="?tab=profile" class="tab-link {% if tab == 'profile' %}active{% endif %}">My Profile</a>
     </div>
 
 
@@ -52,13 +53,12 @@
             <a href="{% url 'companies:job_kanban' job.pk %}" class="btn btn-secondary btn-sm pipeline-desktop-btn">Manage Pipeline →</a>
             <a href="{% url 'companies:job_dashboard' job.pk %}" class="btn btn-secondary btn-sm pipeline-mobile-btn">Manage Pipeline →</a>
             <div class="d-flex gap-4">
-              <a href="{% url 'companies:edit_job' job.pk %}" class="btn btn-primary btn-sm"
-                style="padding: 4px 8px;" title="Edit Job">✏️</a>
-              <form action="{% url 'companies:close_job' job.pk %}" method="POST" style="display:inline;"
-                onsubmit="return confirm('Are you sure you want to close this job?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-ghost btn-sm" style="padding: 4px 8px; color: var(--error);" title="Close Job">🗑️</button>
-              </form>
+              <button type="button" class="btn btn-ghost btn-sm" 
+                 style="padding: 4px 8px; color: var(--error);" 
+                 title="Close Job"
+                 onclick="openDeleteModal(`{% url 'companies:close_job' job.pk %}`)">
+                 🗑️
+               </button>
             </div>
           </div>
         </div>
@@ -94,6 +94,112 @@
       </div>
       {% endfor %}
     </div>
+    {% elif tab == 'profile' %}
+    <div class="mb-24 mt-24">
+      <h3>Company Profile</h3>
+      <p class="text-muted">Update your company details and primary contact information.</p>
+    </div>
+
+    <div class="card">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" name="company_name" class="form-input" value="{{ profile.company_name }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Type</label>
+            <select name="company_type" class="form-select">
+              <option value="towing" {% if profile.company_type == 'towing' %}selected{% endif %}>Towing</option>
+              <option value="freight" {% if profile.company_type == 'freight' %}selected{% endif %}>Freight / Box Truck</option>
+              <option value="both" {% if profile.company_type == 'both' %}selected{% endif %}>Both</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Contact Name</label>
+            <input type="text" name="contact_name" class="form-input" value="{{ profile.contact_name }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" name="phone" class="form-input" value="{{ profile.phone }}">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Preferred Contact Method</label>
+            <select name="contact_method" class="form-select">
+              <option value="email" {% if profile.contact_method == 'email' %}selected{% endif %}>Email</option>
+              <option value="phone" {% if profile.contact_method == 'phone' %}selected{% endif %}>Phone</option>
+              <option value="text" {% if profile.contact_method == 'text' %}selected{% endif %}>Text Message</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Years in Operation</label>
+            <input type="number" name="years_in_operation" class="form-input" value="{{ profile.years_in_operation }}" min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <select name="state" class="form-select state-selector" data-selected="{{ profile.state }}" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <select name="city" class="form-select city-selector" data-selected="{{ profile.city }}" required>
+              <option value="">Select a City</option>
+            </select>
+          </div>
+        </div>
+        <p class="text-xs text-hint mt-4 mb-24">Updating your location ensures your jobs are matched with the correct drivers in your city pool.</p>
+
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+      </form>
+    </div>
     {% endif %}
 </section>
+
+<!-- Delete Job Modal -->
+<div class="modal-overlay" id="deleteJobModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="color: var(--error);">Close Job Listing</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to permanently close and remove this job? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <form id="deleteJobForm" method="POST" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary" style="background: var(--red-light); color: var(--red); border-color: #f0b8b8;">Close Job</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal(url) {
+    document.getElementById('deleteJobForm').action = url;
+    document.getElementById('deleteJobModal').classList.add('active');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteJobModal').classList.remove('active');
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('deleteJobModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeDeleteModal();
+    }
+  });
+</script>
 {% endblock %}

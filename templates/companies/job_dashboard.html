@@ -25,7 +25,7 @@
         <div class="pipeline-list">
             {% if tab == 'search' %}
             {% for driver in pipeline.search %}
-            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+            <div class="card mb-16" style="display:flex; flex-wrap:wrap; gap:16px; padding:24px;">
                 <div class="avatar avatar-md avatar-orange">{{ driver.initials }}</div>
                 <div style="flex:1;">
                     <a href="{% url 'drivers:driver_profile_public' driver.id %}" class="fw-600 text-lg"
@@ -65,7 +65,7 @@
 
             {% elif tab == 'candidates' %}
             {% for app in pipeline.candidates %}
-            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+            <div class="card mb-16" style="display:flex; flex-wrap:wrap; gap:16px; padding:24px;">
                 <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
                 <div style="flex:1;">
                     <div class="d-flex align-center gap-12 mb-4">
@@ -84,7 +84,7 @@
 
                     {% if app.messages.all %}
                     <div class="messages mt-16 mb-16 p-12 card"
-                        style="background:var(--surface2); border:1px solid var(--border);">
+                        style="background:var(--surface2); border:1px solid var(--border); max-height: 300px; overflow-y: auto;">
                         <div class="text-xs fw-600 mb-8 text-muted uppercase">Message History</div>
                         {% for msg in app.messages.all %}
                         <div class="mb-4 p-8"
@@ -98,20 +98,15 @@
                     </div>
                     {% endif %}
 
-                    <div class="d-flex gap-8 mt-12">
+                    <div class="dashboard-actions">
                         <button type="button" class="btn btn-secondary btn-sm"
                             onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='block'">Enquire
                             (Message)</button>
 
-                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="request_credentials">
-                            {% if app.driver.access_request %}
-                            <button type="button" class="btn btn-ghost btn-sm" disabled>Shared: {{                 app.driver.access_request.get_status_display }}</button>
-                            {% else %}
-                            <button type="submit" class="btn btn-secondary btn-sm">📄 Request Credentials</button>
-                            {% endif %}
-                        </form>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('request-credentials-modal-{{ app.pk }}').style.display='block'">📄 Manage Credentials</button>
+                        {% if app.driver.access_requests_map %}
+                        <a href="{% url 'companies:view_driver_documents' app.driver.id %}" class="btn btn-primary btn-sm">View Documents</a>
+                        {% endif %}
 
                         <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
                             {% csrf_token %}
@@ -138,13 +133,42 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="ask_question">
                                 <div class="form-group">
-                                    <textarea name="content" class="form-textarea" rows="4" maxlength="600"
+                                    <textarea name="content" class="form-textarea" rows="4" maxlength="300"
                                         placeholder="Type your message here..." required></textarea>
                                 </div>
                                 <div class="d-flex gap-8 justify-end mt-16">
                                     <button type="button" class="btn btn-ghost"
                                         onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='none'">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Request Credentials Modal -->
+                    <div id="request-credentials-modal-{{ app.pk }}" class="modal"
+                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                        <div class="modal-content card"
+                            style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
+                            <h3 class="mb-16">Request Credentials from {{ app.driver.user.get_full_name }}</h3>
+                            <form method="post" action="{% url 'companies:update_stage' app.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="request_credentials">
+                                <div class="form-group mb-16">
+                                    <label class="form-label">Select Credential to Request</label>
+                                    <select name="credential_type" class="form-input" required>
+                                        <option value="">-- Choose Credential --</option>
+                                        <option value="cdl">CDL</option>
+                                        <option value="dot_medical">DOT Medical Card</option>
+                                        <option value="mvr">MVR</option>
+                                        <option value="drug_test">Drug Test</option>
+                                        <option value="wreckmaster">WreckMaster Certification</option>
+                                        <option value="hazmat">Hazmat Endorsement</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex gap-8 justify-end mt-16">
+                                    <button type="button" class="btn btn-ghost"
+                                        onclick="document.getElementById('request-credentials-modal-{{ app.pk }}').style.display='none'">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Request Access</button>
                                 </div>
                             </form>
                         </div>
@@ -159,7 +183,7 @@
 
             {% elif tab == 'interviewing' %}
             {% for app in pipeline.interviewing %}
-            <div class="card mb-16" style="display:flex; gap:16px; padding:24px;">
+            <div class="card mb-16" style="display:flex; flex-wrap:wrap; gap:16px; padding:24px;">
                 <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
                 <div style="flex:1;">
                     <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" class="fw-600 text-lg"
@@ -171,7 +195,7 @@
 
                     {% if app.messages.all %}
                     <div class="messages mt-16 mb-16 p-12 card"
-                        style="background:var(--surface2); border:1px solid var(--border);">
+                        style="background:var(--surface2); border:1px solid var(--border); max-height: 300px; overflow-y: auto;">
                         <div class="text-xs fw-600 mb-8 text-muted uppercase">Message History</div>
                         {% for msg in app.messages.all %}
                         <div class="mb-4 p-8"
@@ -185,27 +209,15 @@
                     </div>
                     {% endif %}
 
-                    <div class="d-flex gap-8 mt-12 flex-wrap">
+                    <div class="dashboard-actions">
                         <button type="button" class="btn btn-secondary btn-sm"
                             onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='block'">Send
                             Message</button>
 
-                        <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="request_credentials">
-                            {% if app.driver.access_request %}
-                            {% if app.driver.access_request.status == 'pending' %}
-                            <button type="submit" class="btn btn-secondary btn-sm" disabled>⏳ Access Pending</button>
-                            {% elif app.driver.access_request.status == 'approved' %}
-                            <a href="{% url 'companies:view_driver_documents' app.driver.id %}"
-                                class="btn btn-primary btn-sm">View Documents</a>
-                            {% else %}
-                            <button type="submit" class="btn btn-red btn-sm" disabled>✗ Access Denied</button>
-                            {% endif %}
-                            {% else %}
-                            <button type="submit" class="btn btn-secondary btn-sm">📄 Request Credentials</button>
-                            {% endif %}
-                        </form>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('request-credentials-modal-{{ app.pk }}').style.display='block'">📄 Manage Credentials</button>
+                        {% if app.driver.access_requests_map %}
+                        <a href="{% url 'companies:view_driver_documents' app.driver.id %}" class="btn btn-primary btn-sm">View Documents</a>
+                        {% endif %}
 
                         <form method="post" action="{% url 'companies:update_stage' app.pk %}" style="margin:0;">
                             {% csrf_token %}
@@ -224,13 +236,43 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="ask_question">
                                 <div class="form-group">
-                                    <textarea name="content" class="form-textarea" rows="4" maxlength="600"
+                                    <textarea name="content" class="form-textarea" rows="4" maxlength="300"
                                         placeholder="Type your message here..." required></textarea>
                                 </div>
                                 <div class="d-flex gap-8 justify-end mt-16">
                                     <button type="button" class="btn btn-ghost"
                                         onclick="document.getElementById('ask-question-modal-{{ app.pk }}').style.display='none'">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Send</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Request Credentials Modal -->
+                    <div id="request-credentials-modal-{{ app.pk }}" class="modal"
+                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                        <div class="modal-content card"
+                            style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
+                            <h3 class="mb-16">Request Credentials from {{ app.driver.user.get_full_name }}</h3>
+                            <form method="post" action="{% url 'companies:update_stage' app.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="request_credentials">
+                                <div class="form-group mb-16">
+                                    <label class="form-label">Select Credential to Request</label>
+                                    <select name="credential_type" class="form-input" required>
+                                        <option value="">-- Choose Credential --</option>
+                                        <option value="cdl">CDL</option>
+                                        <option value="dot_medical">DOT Medical Card</option>
+                                        <option value="mvr">MVR</option>
+                                        <option value="drug_test">Drug Test</option>
+                                        <option value="wreckmaster">WreckMaster Certification</option>
+                                        <option value="hazmat">Hazmat Endorsement</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex gap-8 justify-end mt-16">
+                                    <button type="button" class="btn btn-ghost"
+                                        onclick="document.getElementById('request-credentials-modal-{{ app.pk }}').style.display='none'">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Request Access</button>
                                 </div>
                             </form>
                         </div>
@@ -245,7 +287,7 @@
 
             {% elif tab == 'hired' %}
             {% for app in pipeline.hired %}
-            <div class="card mb-16" style="display:flex; gap:16px; padding:24px; border-left: 4px solid var(--green);">
+            <div class="card mb-16" style="display:flex; flex-wrap:wrap; gap:16px; padding:24px; border-left: 4px solid var(--green);">
                 <div class="avatar avatar-md avatar-green">{{ app.driver.initials }}</div>
                 <div style="flex:1;">
                     <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" class="fw-600 text-lg"
@@ -255,59 +297,10 @@
                         {{ app.driver.bio|truncatechars:200 }}
                     </div>
 
-                    <div class="d-flex gap-8 mt-12 flex-wrap">
+                    <div class="dashboard-actions">
                         <span class="badge badge-green" style="padding: 6px 12px; font-size: 0.85rem;">✓ Hired Participant</span>
                         <a href="{% url 'companies:view_driver_documents' app.driver.id %}" class="btn btn-secondary btn-sm">View Documents</a>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('review-driver-modal-{{ app.driver.id }}').style.display='block'" style="background-color: var(--amber); border-color: var(--amber);">⭐️ Leave Review</button>
-                    </div>
-
-                    <!-- Review Driver Modal -->
-                    <div id="review-driver-modal-{{ app.driver.id }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-                        <div class="modal-content card" style="background:var(--surface); margin:10% auto; padding:24px; max-width:500px; border-radius:8px;">
-                            <h3 class="mb-16">Review {{ app.driver.user.get_full_name }}</h3>
-                            <p class="text-sm text-muted mb-16">Your professional feedback helps maintain a high-quality driving pool.</p>
-                            <form method="post" action="{% url 'companies:leave_driver_review' app.driver.id %}">
-                                {% csrf_token %}
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Reliability (1-5)</label>
-                                        <input type="number" name="reliability" class="form-input" min="1" max="5" value="5" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Punctuality (1-5)</label>
-                                        <input type="number" name="punctuality" class="form-input" min="1" max="5" value="5" required>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Equipment Care (1-5)</label>
-                                        <input type="number" name="equipment" class="form-input" min="1" max="5" value="5" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Communication (1-5)</label>
-                                        <input type="number" name="communication" class="form-input" min="1" max="5" value="5" required>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Employed From (Optional)</label>
-                                        <input type="date" name="employed_from" class="form-input">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Employed To (Optional)</label>
-                                        <input type="date" name="employed_to" class="form-input">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Public Comment</label>
-                                    <textarea name="comment" class="form-textarea" rows="4" placeholder="Describe their performance..." required></textarea>
-                                </div>
-                                <div class="d-flex gap-8 justify-end mt-16">
-                                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('review-driver-modal-{{ app.driver.id }}').style.display='none'">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" style="background-color: var(--amber); border-color: var(--amber); color: white;">Submit Review</button>
-                                </div>
-                            </form>
-                        </div>
+                        <a href="{% url 'companies:leave_driver_review' app.driver.id %}" class="btn btn-primary btn-sm" style="background-color: var(--amber); border-color: var(--amber);">⭐️ Leave Review</a>
                     </div>
                 </div>
             </div>

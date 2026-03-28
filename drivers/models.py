@@ -172,6 +172,7 @@ class DriverDocument(models.Model):
     driver = models.ForeignKey(DriverProfile, on_delete=models.CASCADE, related_name='documents')
     file = models.FileField(upload_to='driver_documents/')
     name = models.CharField(max_length=255)
+    is_verified = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

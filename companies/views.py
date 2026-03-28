@@ -38,10 +38,42 @@ def dashboard(request):
     for driver in pool_drivers:
         driver.access_request = request_map.get(driver.id)
 
-    # Handle access request POST
+    # Handle POST actions
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'request_credentials':
+        
+        if action == 'update_profile':
+            profile.company_name = request.POST.get('company_name', profile.company_name)
+            profile.company_type = request.POST.get('company_type', profile.company_type)
+            profile.contact_name = request.POST.get('contact_name', profile.contact_name)
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.contact_method = request.POST.get('contact_method', profile.contact_method)
+            
+            try:
+                profile.years_in_operation = int(request.POST.get('years_in_operation', 0) or 0)
+            except ValueError:
+                profile.years_in_operation = 0
+                
+            profile.city = request.POST.get('city', profile.city)
+            profile.state = (request.POST.get('state', profile.state) or '').upper()
+
+            # Attempt to match a CityPool
+            from pools.models import CityPool
+            matched_pool = CityPool.objects.filter(
+                name__iexact=profile.city, 
+                state__iexact=profile.state, 
+                is_active=True
+            ).first()
+            if matched_pool:
+                profile.city_pool = matched_pool
+            else:
+                profile.city_pool = None
+            
+            profile.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('/company/dashboard/?tab=profile')
+            
+        elif action == 'request_credentials':
             driver_id = request.POST.get('driver_id')
             driver_target = get_object_or_404(DriverProfile, pk=driver_id)
             req, created = CredentialAccessRequest.objects.get_or_create(
@@ -172,6 +204,16 @@ def update_stage(request, app_id):
             from jobs.models import ApplicationMessage
             from core.emails import send_message_mail
             
+            # Anti-spam checks
+            last_msgs = ApplicationMessage.objects.filter(application=application).order_by('-created_at')[:2]
+            if len(last_msgs) == 2 and all(m.sender_is_company for m in last_msgs):
+                messages.error(request, 'You cannot send more than 2 consecutive messages until the driver replies.')
+                return redirect(f'/company/job/{application.job.pk}/dashboard/')
+            
+            if len(content) > 300:
+                messages.error(request, 'Message must be 300 characters or less.')
+                return redirect(f'/company/job/{application.job.pk}/dashboard/')
+            
             ApplicationMessage.objects.create(
                 application=application,
                 sender_is_company=True,
@@ -188,19 +230,29 @@ def update_stage(request, app_id):
             messages.success(request, f'Question sent to {application.driver.user.get_full_name()}.')
     
     elif action == 'request_credentials':
-        # Create a pending access request if it doesn't exist
+        credential_type = request.POST.get('credential_type')
+        if not credential_type:
+            messages.error(request, 'Please select a credential type.')
+            return redirect(f'/company/job/{application.job.pk}/dashboard/')
+
+        # Create a pending access request natively scoped to the specific type
         req, created = CredentialAccessRequest.objects.get_or_create(
             dispatcher=request.user.company_profile,
             driver=application.driver,
+            credential_type=credential_type,
             defaults={'status': 'pending'}
         )
         if created:
-            send_access_request_mail(request.user.company_profile, application.driver)
+            send_access_request_mail(request.user.company_profile, application.driver, dict(Credential.TYPE_CHOICES).get(credential_type, "credential").lower())
+        elif req.status == 'rejected':
+            req.status = 'pending'
+            req.save()
+            send_access_request_mail(request.user.company_profile, application.driver, dict(Credential.TYPE_CHOICES).get(credential_type, "credential").lower())
         
         if application.stage in ['applied', 'reviewed']:
                 application.stage = 'interview'
         application.save()
-        messages.success(request, f'Credential access requested from {application.driver.user.get_full_name()}.')
+        messages.success(request, f'{dict(Credential.TYPE_CHOICES).get(credential_type, "Credential")} access requested from {application.driver.user.get_full_name()}.')
         
     elif new_stage in dict(JobApplication.STAGE_CHOICES):
         application.stage = new_stage
@@ -258,12 +310,15 @@ def job_dashboard(request, job_id):
     
     # access_requests to show if dispatcher has credential access
     access_requests = CredentialAccessRequest.objects.filter(dispatcher=profile)
-    request_map = {req.driver_id: req for req in access_requests}
+    from collections import defaultdict
+    request_map = defaultdict(dict)
+    for req in access_requests:
+        request_map[req.driver_id][req.credential_type] = req
 
     for app in applications:
-        app.driver.access_request = request_map.get(app.driver.id)
+        app.driver.access_requests_map = request_map.get(app.driver.id, {})
     for driver in pool_drivers:
-        driver.access_request = request_map.get(driver.id)
+        driver.access_requests_map = request_map.get(driver.id, {})
         
     tab = request.GET.get('tab', 'candidates')
     
@@ -328,14 +383,23 @@ def view_driver_documents(request, driver_id):
         messages.error(request, "You do not have permission to view these documents.")
         return redirect('companies:dashboard')
 
-    return render(request, 'companies/view_driver_documents.html', {
+    approved_credentials = list(CredentialAccessRequest.objects.filter(
+        dispatcher=profile,
+        driver=target_driver,
+        status='approved'
+    ).values_list('credential_type', flat=True))
+
+    return render(request, 'companies/driver_documents.html', {
         'target_driver': target_driver,
-        'profile': profile
+        'profile': profile,
+        'approved_credentials': approved_credentials,
+        'credentials': target_driver.credentials.all(),
+        'documents': target_driver.documents.all()
     })
 
 @login_required
 def leave_driver_review(request, driver_id):
-    if request.method != 'POST' or request.user.role != 'company':
+    if request.user.role != 'company':
         return redirect('/')
 
     from drivers.models import DriverProfile, DriverReview
@@ -354,20 +418,25 @@ def leave_driver_review(request, driver_id):
         messages.error(request, "You have already reviewed this driver.")
         return redirect(request.META.get('HTTP_REFERER', 'companies:dashboard'))
 
-    DriverReview.objects.create(
-        driver=target_driver,
-        company=company,
-        reliability=int(request.POST.get('reliability', 5)),
-        punctuality=int(request.POST.get('punctuality', 5)),
-        equipment=int(request.POST.get('equipment', 5)),
-        communication=int(request.POST.get('communication', 5)),
-        comment=request.POST.get('comment', '').strip(),
-        employed_from=request.POST.get('employed_from') or None,
-        employed_to=request.POST.get('employed_to') or None
-    )
-    
-    messages.success(request, f"Review submitted for {target_driver.user.get_full_name()}!")
-    return redirect(request.META.get('HTTP_REFERER', 'companies:dashboard'))
+    if request.method == 'POST':
+        DriverReview.objects.create(
+            driver=target_driver,
+            company=company,
+            reliability=int(request.POST.get('reliability', 5)),
+            punctuality=int(request.POST.get('punctuality', 5)),
+            equipment=int(request.POST.get('equipment', 5)),
+            communication=int(request.POST.get('communication', 5)),
+            comment=request.POST.get('comment', '').strip(),
+            employed_from=request.POST.get('employed_from') or None,
+            employed_to=request.POST.get('employed_to') or None
+        )
+        messages.success(request, f"Review submitted for {target_driver.user.get_full_name()}!")
+        return redirect('companies:dashboard')
+
+    return render(request, 'companies/leave_driver_review.html', {
+        'target_driver': target_driver,
+        'profile': company
+    })
 
 
 

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.http import FileResponse, HttpResponseForbidden, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DriverProfile, Credential, DriverDocument
@@ -82,12 +83,18 @@ def driver_profile(request):
             document_file = request.FILES.get('document_file')
             document_name = request.POST.get('document_name', 'Document')
             if document_file:
-                DriverDocument.objects.create(
-                    driver=profile,
-                    file=document_file,
-                    name=document_name
-                )
-                messages.success(request, 'Document uploaded successfully to your vault.')
+                ext = str(document_file.name).lower().split('.')[-1]
+                if ext not in ['pdf', 'doc', 'docx']:
+                    messages.error(request, 'Only PDF or DOC files are allowed.')
+                elif document_file.size > 30 * 1024 * 1024:
+                    messages.error(request, 'Document size cannot exceed 30MB.')
+                else:
+                    DriverDocument.objects.create(
+                        driver=profile,
+                        file=document_file,
+                        name=document_name
+                    )
+                    messages.success(request, 'Document uploaded successfully to your vault.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
         elif action == 'handle_access_request':
@@ -110,16 +117,24 @@ def driver_profile(request):
             expiry = request.POST.get('expiry_date')
 
             if cred_type and cred_file:
-                cred, _ = Credential.objects.get_or_create(
-                    driver=profile,
-                    credential_type=cred_type
-                )
-                cred.file = cred_file
-                cred.status = 'pending'
-                if expiry:
-                    cred.expiry_date = expiry
-                cred.save()
-                messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
+                ext = str(cred_file.name).lower().split('.')[-1]
+                if ext not in ['pdf', 'doc', 'docx']:
+                    messages.error(request, 'Only PDF or DOC files are allowed.')
+                    return redirect(reverse('drivers:profile') + '?tab=credentials')
+                
+                if cred_file.size > 30 * 1024 * 1024:
+                    messages.error(request, 'Credential file size cannot exceed 30MB.')
+                else:
+                    cred, _ = Credential.objects.get_or_create(
+                        driver=profile,
+                        credential_type=cred_type
+                    )
+                    cred.file = cred_file
+                    cred.status = 'pending'
+                    if expiry:
+                        cred.expiry_date = expiry
+                    cred.save()
+                    messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
             else:
                 messages.warning(request, 'No file selected for upload.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
@@ -164,6 +179,16 @@ def driver_profile(request):
             content = request.POST.get('content')
             if app_id and content:
                 application = get_object_or_404(JobApplication, pk=app_id, driver=profile)
+                
+                # Anti-spam limits
+                last_msgs = ApplicationMessage.objects.filter(application=application).order_by('-created_at')[:2]
+                if len(last_msgs) == 2 and not any(m.sender_is_company for m in last_msgs):
+                    messages.error(request, 'You cannot send more than 2 consecutive messages until the dispatcher replies.')
+                    return redirect(reverse('drivers:profile') + '?tab=applications')
+                
+                if len(content) > 300:
+                    messages.error(request, 'Message must be 300 characters or less.')
+                    return redirect(reverse('drivers:profile') + '?tab=applications')
                 ApplicationMessage.objects.create(
                     application=application,
                     sender_is_company=False,
@@ -275,3 +300,45 @@ def leave_company_review(request, company_id):
     messages.success(request, f"Review submitted for {company.company_name}!")
     return redirect(request.META.get('HTTP_REFERER', 'drivers:profile'))
 
+@login_required
+def serve_credential(request, credential_id):
+    credential = get_object_or_404(Credential, pk=credential_id)
+    
+    # 1. Driver themselves can always view their own
+    if request.user.role == 'driver' and request.user.driver_profile == credential.driver:
+        if credential.file:
+            return FileResponse(credential.file.open('rb'))
+        raise Http404("File not found")
+        
+    # 2. Company can view if they have an approved request
+    if request.user.role == 'company':
+        dispatcher = request.user.company_profile
+        has_access = CredentialAccessRequest.objects.filter(
+            dispatcher=dispatcher,
+            driver=credential.driver,
+            credential_type=credential.credential_type,
+            status='approved'
+        ).exists()
+        if has_access:
+            if credential.file:
+                return FileResponse(credential.file.open('rb'))
+            raise Http404("File not found")
+
+    return HttpResponseForbidden("You do not have permission to view this credential.")
+
+@login_required
+def serve_driver_document(request, document_id):
+    document = get_object_or_404(DriverDocument, pk=document_id)
+    
+    # Simple proxy: if you're the driver, or if you're any authenticated company, you can see generic uploads
+    if request.user.role == 'driver' and request.user.driver_profile == document.driver:
+        if document.file:
+            return FileResponse(document.file.open('rb'))
+        raise Http404("File not found")
+        
+    if request.user.role == 'company':
+        if document.file:
+            return FileResponse(document.file.open('rb'))
+        raise Http404("File not found")
+        
+    return HttpResponseForbidden("Access Denied.")

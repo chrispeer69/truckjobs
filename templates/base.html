@@ -47,7 +47,7 @@
         {% endif %}
         
         <!-- Mobile-only actions -->
-        <li class="mobile-only" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border);">
+        <li class="mobile-only" style="padding-top: 24px; border-top: 1px solid var(--border); margin-top: 16px;">
           {% if user.is_authenticated %}
           <div class="mb-16 fw-600">{{ user.get_full_name|default:user.username }}</div>
           <a href="{% url 'core:logout' %}" class="btn btn-secondary btn-block">Sign Out</a>
@@ -66,13 +66,10 @@
           <a href="{% url 'core:register_driver' %}" class="btn btn-primary btn-sm">Join Free</a>
           {% endif %}
         </div>
-        <button class="mobile-menu-toggle" aria-label="Toggle navigation">
-          <svg class="icon-menu" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-          <svg class="icon-close" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="display:none;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+        <button class="mobile-menu-toggle mobile-only" aria-label="Toggle navigation">
+          <div class="hamburger-box">
+            <div class="hamburger-inner"></div>
+          </div>
         </button>
       </div>
     </div>
@@ -107,16 +104,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       const toggle = document.querySelector('.mobile-menu-toggle');
       const nav = document.querySelector('.navbar-nav');
-      const menuIcon = toggle ? toggle.querySelector('.icon-menu') : null;
-      const closeIcon = toggle ? toggle.querySelector('.icon-close') : null;
 
       if (toggle && nav) {
         toggle.addEventListener('click', () => {
           const isActive = nav.classList.toggle('active');
-          if (menuIcon && closeIcon) {
-            menuIcon.style.display = isActive ? 'none' : 'block';
-            closeIcon.style.display = isActive ? 'block' : 'none';
-          }
+          toggle.classList.toggle('is-active', isActive);
           document.body.style.overflow = isActive ? 'hidden' : '';
         });
       }

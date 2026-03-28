@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Review {{ target_driver.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+    <div class="container" style="max-width: 600px;">
+        <div class="mb-24">
+            <a href="javascript:history.back()" class="text-sm text-brand mb-8 d-block">← Back to Dashboard</a>
+            <h2>Review {{ target_driver.user.get_full_name }}</h2>
+            <p class="text-sm text-muted">Your professional feedback helps maintain a high-quality driving pool.</p>
+        </div>
+
+        <div class="card p-24">
+            <form method="post" action="{% url 'companies:leave_driver_review' target_driver.id %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Reliability (1-5)</label>
+                        <input type="number" name="reliability" class="form-input" min="1" max="5" value="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Punctuality (1-5)</label>
+                        <input type="number" name="punctuality" class="form-input" min="1" max="5" value="5" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Equipment Care (1-5)</label>
+                        <input type="number" name="equipment" class="form-input" min="1" max="5" value="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Communication (1-5)</label>
+                        <input type="number" name="communication" class="form-input" min="1" max="5" value="5" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Employed From (Optional)</label>
+                        <input type="date" name="employed_from" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Employed To (Optional)</label>
+                        <input type="date" name="employed_to" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Public Comment</label>
+                    <textarea name="comment" class="form-textarea" rows="4" placeholder="Describe their performance..." required></textarea>
+                </div>
+                <div class="d-flex gap-12 justify-end mt-24">
+                    <a href="javascript:history.back()" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--amber); border-color: var(--amber); color: white;">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

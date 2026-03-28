@@ -218,7 +218,7 @@ view them.</p>
 <div class="d-flex align-center justify-between"
 style="padding: 12px 0; border-bottom: 1px solid var(--border);">
 <div>
-<strong>{{ req.dispatcher.company_name }}</strong> has requested access to view your credentials.
+<strong>{{ req.dispatcher.company_name }}</strong> has requested access to view your {{ req.get_credential_type_display|lower }}.
 <div class="text-sm text-muted">{{ req.created_at|date:"M d, Y" }}</div>
 </div>
 <div class="d-flex gap-8">
@@ -273,7 +273,7 @@ style="display: flex; flex-direction: column; justify-content: space-between; mi
 <div class="form-group mb-0">
 <label class="text-xs fw-600">{% if cred.file %}Update{% else %}Upload{% endif %}
 File:</label>
-<input type="file" name="credential_file" class="form-input text-xs" style="padding: 4px;"
+<input type="file" name="credential_file" class="form-input text-xs" style="padding: 4px;" accept=".pdf,.doc,.docx"
 required>
 </div>
 <div class="form-group mb-0">
