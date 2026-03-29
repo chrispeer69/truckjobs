@@ -14,10 +14,6 @@ services:
   web:
     build: .
     env_file: .env
-    environment:
-      - USE_POSTGRES=True
-      - DB_HOST=db
-      - DB_PORT=5432
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/media
