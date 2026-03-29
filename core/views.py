@@ -169,10 +169,17 @@ def forgot_password(request):
         from .emails import send_password_reset_otp
         
         otp_code = f"{random.randint(100000, 999999)}"
-        PasswordResetOTP.objects.create(user=user, otp=otp_code)
+        otp_record = PasswordResetOTP.objects.create(user=user, otp=otp_code)
         
-        # Send email
-        send_password_reset_otp(user, otp_code)
+        # Send email with error handling
+        try:
+            send_password_reset_otp(user, otp_code)
+        except Exception as e:
+            # Delete the OTP record since the email failed to send
+            otp_record.delete()
+            messages.error(request, 'The server failed to send the email. Please check your email configuration.')
+            print(f"SMTP Error encountered: {e}")
+            return render(request, 'core/forgot_password.html')
         
         request.session['reset_email'] = user.email
         return redirect('core:verify_otp')
