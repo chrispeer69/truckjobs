@@ -468,7 +468,7 @@ style="background:var(--surface); border-radius:4px; {% if msg.sender_is_company
 {% if msg.sender_is_company %}{{ app.job.company.company_name }}{% else %}You{% endif %} -
 {{ msg.created_at|date:"M d, g:i a" }}
 </div>
-<div class="text-sm">{{ msg.content }}</div>
+<div class="text-sm">{{ msg.content|urlize }}</div>
 </div>
 {% empty %}
 <p class="text-sm text-muted mb-8">No messages yet. Send a message to start the conversation.</p>

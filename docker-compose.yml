@@ -1,17 +1,29 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    restart: always
+
   web:
     build: .
     env_file: .env
     environment:
-      - DB_PATH=/app/db_data/db.sqlite3
+      - USE_POSTGRES=True
+      - DB_HOST=db
+      - DB_PORT=5432
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/media
-      - db_data:/app/db_data
       - .env:/app/.env
-
+    depends_on:
+      - db
     expose:
       - "8000"
     restart: always
@@ -33,4 +45,4 @@ services:
 volumes:
   static_files:
   media_files:
-  db_data:
+  postgres_data:

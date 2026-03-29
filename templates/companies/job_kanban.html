@@ -27,7 +27,7 @@
           <span class="pipeline-count">{{ pipeline.applied|length }}</span>
         </div>
         {% for app in pipeline.applied %}
-        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=candidates'" style="cursor:pointer;">
+        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=applied';" style="cursor:pointer;">
             <div class="d-flex gap-12 align-center">
               <a href="{% url 'drivers:driver_profile_public' app.driver.id %}" onclick="event.stopPropagation();">
                 <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
@@ -66,7 +66,7 @@
           <span class="pipeline-count">{{ pipeline.reviewed|length }}</span>
         </div>
         {% for app in pipeline.reviewed %}
-        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=candidates'" style="cursor:pointer;">
+        <div class="pipeline-card" onclick="window.location.href='{% url 'companies:job_dashboard' job.pk %}?tab=reviewed';" style="cursor:pointer;">
             <div class="d-flex gap-12 align-center">
               <a href="{% url 'drivers:driver_profile_public' app.driver.id %}">
                 <div class="avatar avatar-md avatar-green">{{ app.driver.initials }}</div>
@@ -87,7 +87,11 @@
               {% endfor %}
               {% endwith %}
             </div>
-            {% if app.flagged_by_dispatcher %}
+            {% if app.stage == 'invited' %}
+            <div class="mt-8">
+              <span class="badge badge-amber" style="font-size:0.7rem;">Invited</span>
+            </div>
+            {% elif app.flagged_by_dispatcher %}
             <div class="mt-8">
               <span class="badge badge-red" style="font-size:0.7rem;">Flagged by dispatcher</span>
             </div>

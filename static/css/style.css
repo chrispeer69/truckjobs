@@ -6,6 +6,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700;800&display=swap');
 
 /* ─── CSS Variables ─── */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
 :root {
   --brand: #D85A30;
   --brand-dark: #993C1D;
@@ -129,6 +138,8 @@ h5 {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .container-sm {
@@ -162,7 +173,6 @@ h5 {
   z-index: 1000;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
   height: 64px;
   display: flex;
   align-items: center;
@@ -1161,6 +1171,10 @@ h5 {
   letter-spacing: 0.5px;
 }
 
+.pricing-card {
+  overflow: visible !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    JOB CARDS
    ═══════════════════════════════════════════════════════════ */
@@ -1235,6 +1249,34 @@ h5 {
   gap: 16px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .pool-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .pool-dot {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .pool-name {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .pool-row > .badge {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .pool-stats {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 4px;
+    gap: 8px 16px;
+  }
 }
 
 .pool-row:last-child {
@@ -1280,6 +1322,14 @@ h5 {
   gap: 20px;
   font-size: 0.85rem;
   color: var(--muted);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .pool-stats {
+    gap: 12px;
+    width: 100%;
+  }
 }
 
 .pool-avatars {
@@ -1417,7 +1467,6 @@ h5 {
   margin: 16px 0;
 }
 
-.category-bar-item {}
 
 .category-bar-label {
   display: flex;
@@ -1575,6 +1624,17 @@ h5 {
 /* ═══════════════════════════════════════════════════════════
    MODAL
    ═══════════════════════════════════════════════════════════ */
+/* Inline-style modals (used in job_dashboard.html etc.) */
+.modal {
+  z-index: 4000 !important;
+  overflow: auto !important;
+}
+.modal .modal-content.card {
+  z-index: 4001;
+  position: relative;
+  overflow: visible !important;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1648,6 +1708,7 @@ h5 {
 
 .footer .container {
   text-align: center;
+  padding: 0 24px;
 }
 
 .footer-logo {
@@ -2014,6 +2075,10 @@ h5 {
     flex-direction: row;
     align-items: center;
   }
+
+  .job-card-end {
+    text-align: left !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2044,4 +2109,57 @@ h5 {
   .mobile-only { display: block !important; }
   .pipeline-desktop-btn { display: none !important; }
   .pipeline-mobile-btn { display: flex !important; }
+}
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+.grid-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .grid-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .grid-steps {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.text-left-mobile-center {
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .text-left-mobile-center {
+    text-align: center;
+  }
+}
+@media (max-width: 768px) {
+  .section {
+    padding: 32px 0;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+  
+  .mb-32 {
+    margin-bottom: 24px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.75rem;
+  }
+}
+
+.card {
+  overflow: hidden;
+  word-wrap: break-word;
 }

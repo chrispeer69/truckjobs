@@ -96,5 +96,9 @@ class CredentialAccessRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    def get_credential_type_display(self):
+        from drivers.models import Credential
+        return dict(Credential.TYPE_CHOICES).get(self.credential_type, "Credential")
+    
     def __str__(self):
         return f"{self.dispatcher.company_name} -> {self.driver.user.get_full_name()} ({self.credential_type} - {self.status})"

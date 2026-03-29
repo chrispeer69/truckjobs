@@ -150,17 +150,6 @@ def post_job(request):
         if status == 'draft':
             messages.success(request, 'Job saved as draft.')
         else:
-            # Trigger Job Match Emails
-            if job.city_pool:
-                matching_drivers = job.city_pool.driverprofile_set.filter(
-                    is_active=True,
-                    cdl_class=job.cdl_requirement
-                )
-                from core.emails import send_job_match_mail
-                for driver in matching_drivers:
-                    if driver.sms_job_match: # Respect user alert settings
-                        send_job_match_mail(driver, job)
-                        
             messages.success(request, f'"{job.title}" is now live! Drivers in your city pool can see it.')
         return redirect('companies:company_jobs')
 
@@ -242,15 +231,36 @@ def update_stage(request, app_id):
             credential_type=credential_type,
             defaults={'status': 'pending'}
         )
+        
+        cred_name = dict(Credential.TYPE_CHOICES).get(credential_type, "credential")
+        
         if created:
-            send_access_request_mail(request.user.company_profile, application.driver, dict(Credential.TYPE_CHOICES).get(credential_type, "credential").lower())
+            send_access_request_mail(request.user.company_profile, application.driver, cred_name.lower())
+            
+            # Auto-generate a chat message
+            from jobs.models import ApplicationMessage
+            ApplicationMessage.objects.create(
+                application=application,
+                sender_is_company=True,
+                content=f"has requested access to your {cred_name}. Please review this in your My Profile -> Credentials tab."
+            )
+            
         elif req.status == 'rejected':
             req.status = 'pending'
             req.save()
-            send_access_request_mail(request.user.company_profile, application.driver, dict(Credential.TYPE_CHOICES).get(credential_type, "credential").lower())
-        
-        if application.stage in ['applied', 'reviewed']:
-                application.stage = 'interview'
+            send_access_request_mail(request.user.company_profile, application.driver, cred_name.lower())
+            
+            # Auto-generate a chat message
+            from jobs.models import ApplicationMessage
+            ApplicationMessage.objects.create(
+                application=application,
+                sender_is_company=True,
+                content=f"has requested access to your {cred_name} again. Please review this in your My Profile -> Credentials tab."
+            )
+            
+        # Move to interview stage if requested a credential
+        if application.stage in ['applied', 'reviewed', 'invited']:
+            application.stage = 'interview'
         application.save()
         messages.success(request, f'{dict(Credential.TYPE_CHOICES).get(credential_type, "Credential")} access requested from {application.driver.user.get_full_name()}.')
         
@@ -288,6 +298,17 @@ def job_dashboard(request, job_id):
             if app.stage in ['withdrawn', 'rejected']:
                 app.stage = 'invited'
                 app.save()
+            
+            # Create automated invitation message
+            from jobs.models import ApplicationMessage
+            from django.urls import reverse
+            job_url = request.build_absolute_uri(reverse('jobs:detail', args=[job.pk]))
+            ApplicationMessage.objects.create(
+                application=app,
+                sender_is_company=True,
+                content=f"{profile.company_name} invited you to apply for this job: {job_url}"
+            )
+            
             messages.success(request, f'Invited {driver.user.get_full_name()} to apply for this job.')
             return redirect('companies:job_dashboard', job_id=job.pk)
             
@@ -303,7 +324,8 @@ def job_dashboard(request, job_id):
 
     pipeline = {
         'search': pool_drivers,
-        'candidates': applications.filter(stage__in=['applied', 'reviewed', 'invited']),
+        'applied': applications.filter(stage='applied'),
+        'reviewed': applications.filter(stage__in=['reviewed', 'invited']),
         'interviewing': applications.filter(stage='interview'),
         'hired': applications.filter(stage='hired'),
     }
@@ -319,14 +341,17 @@ def job_dashboard(request, job_id):
         app.driver.access_requests_map = request_map.get(app.driver.id, {})
     for driver in pool_drivers:
         driver.access_requests_map = request_map.get(driver.id, {})
-        
-    tab = request.GET.get('tab', 'candidates')
+
+    has_applied = applications.filter(stage='applied').exists()
+    tab = request.GET.get('tab', 'applied' if has_applied else 'reviewed')
+    tab_results = pipeline.get(tab, [])
     
     context = {
         'profile': profile,
         'job': job,
         'pipeline': pipeline,
         'tab': tab,
+        'tab_results': tab_results,
     }
     return render(request, 'companies/job_dashboard.html', context)
 
@@ -448,9 +473,12 @@ def job_kanban(request, job_id):
     job = get_object_or_404(JobListing, id=job_id, company=profile)
     applications = job.applications.all().select_related('driver', 'driver__user').order_by('-created_at')
     
+    # Auto-update any 'applied' applications to 'reviewed' when the dashboard is opened
+    applications.filter(stage='applied').update(stage='reviewed')
+    
     pipeline = {
-        'applied': applications.filter(stage__in=['applied', 'invited']),
-        'reviewed': applications.filter(stage='reviewed'),
+        'applied': applications.filter(stage='applied'),
+        'reviewed': applications.filter(stage__in=['reviewed', 'invited']),
         'interview': applications.filter(stage='interview'),
         'hired': applications.filter(stage='hired'),
     }
@@ -470,3 +498,18 @@ def job_kanban(request, job_id):
         'pipeline': pipeline,
         'stats': stats,
     })
+
+@login_required
+def publish_job(request, job_id):
+    if request.user.role != 'company':
+        return redirect('/')
+    
+    profile = request.user.company_profile
+    job = get_object_or_404(JobListing, id=job_id, company=profile)
+    
+    if job.status == 'draft':
+        job.status = 'active'
+        job.save()
+        messages.success(request, f'Job "{job.title}" has been published!')
+    
+    return redirect('companies:company_jobs')

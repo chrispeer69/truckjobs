@@ -4,7 +4,7 @@
 {% block content %}
 <section class="section" style="padding-top:40px;">
     <div class="container">
-        <div class="section-header" style="text-align:left;">
+        <div class="section-header text-left-mobile-center">
             <span class="eyebrow">City Driver Pools</span>
             <h2>Join your city's driver pool</h2>
             <p style="margin-left:0;">Drivers join once. Companies browse and post jobs. No repeated applications.</p>
@@ -13,9 +13,9 @@
         <!-- User's Current Pool -->
         {% if user_pool %}
         <div class="card card-orange-tint mb-24" style="border:1px solid var(--brand);">
-            <div style="display:flex;align-items:center;gap:16px;">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
                 <div class="pool-dot active"></div>
-                <div style="flex:1;">
+                <div style="flex:1;min-width:200px;">
                     <h4 style="margin-bottom:2px;">📍 You're active in {{ user_pool }}</h4>
                     <p class="text-sm text-muted">You're visible to all companies in this pool. {{ user_pool.driver_count }} drivers · {{ user_pool.company_count }} companies · {{ user_pool.open_job_count }} open jobs</p>
                 </div>
@@ -26,7 +26,7 @@
         <!-- How It Works -->
         <div class="card card-navy-tint mb-32">
             <h4 style="margin-bottom:16px;">How city pools work</h4>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+            <div class="grid-steps">
                 <div>
                     <div style="font-size:1.5rem;margin-bottom:6px;">1️⃣</div>
                     <h5>Join your city</h5>

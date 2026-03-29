@@ -40,6 +40,12 @@
           <span class="badge {% if job.status == 'active' %}badge-green{% else %}badge-gray{% endif %}">
             {{ job.get_status_display }}
           </span>
+          {% if job.status == 'draft' %}
+          <form method="post" action="{% url 'companies:publish_job' job.pk %}" style="display:inline; margin-left: 8px;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-xs" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px;">Publish Now</button>
+          </form>
+          {% endif %}
           <span class="text-xs text-muted">{{ job.created_at|date:"M d, Y" }}</span>
         </div>
         <h3 class="mb-8">{{ job.title }}</h3>

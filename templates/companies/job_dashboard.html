@@ -8,17 +8,29 @@
             <div>
                 <a href="{% url 'companies:dashboard' %}" class="text-sm text-brand mb-8 d-block">← Back to
                     Dashboard</a>
-                <span class="eyebrow">{{ profile.company_name }}</span>
-                <h2>{{ job.title }} - Pipeline</h2>
+                <div class="d-flex align-center justify-between" style="width: 100%;">
+                    <div>
+                        <span class="eyebrow">{{ profile.company_name }}</span>
+                        <h2>{{ job.title }} - Pipeline</h2>
+                    </div>
+                    {% if job.status == 'draft' %}
+                    <div class="d-flex align-center gap-12">
+                        <span class="badge badge-gray">Draft Mode</span>
+                        <form method="post" action="{% url 'companies:publish_job' job.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Publish This Job Now</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
         <div class="tab-bar mb-24">
-            <a href="?tab=search" class="tab-link {% if tab == 'search' %}active{% endif %}">Search / City Pool ({{         pipeline.search|length }})</a>
-            <a href="?tab=candidates" class="tab-link {% if tab == 'candidates' %}active{% endif %}">Review Candidates
-                ({{ pipeline.candidates|length }})</a>
-            <a href="?tab=interviewing" class="tab-link {% if tab == 'interviewing' %}active{% endif %}">Interviewing
-                ({{ pipeline.interviewing|length }})</a>
+            <a href="?tab=search" class="tab-link {% if tab == 'search' %}active{% endif %}">Search / City Pool ({{ pipeline.search|length }})</a>
+            <a href="?tab=applied" class="tab-link {% if tab == 'applied' %}active{% endif %}">Applied ({{ pipeline.applied|length }})</a>
+            <a href="?tab=reviewed" class="tab-link {% if tab == 'reviewed' %}active{% endif %}">Reviewed / Invited ({{ pipeline.reviewed|length }})</a>
+            <a href="?tab=interviewing" class="tab-link {% if tab == 'interviewing' %}active{% endif %}">Interviewing ({{ pipeline.interviewing|length }})</a>
             <a href="?tab=hired" class="tab-link {% if tab == 'hired' %}active{% endif %}">Hired ({{ pipeline.hired|length }})</a>
         </div>
 
@@ -63,8 +75,8 @@
             </div>
             {% endfor %}
 
-            {% elif tab == 'candidates' %}
-            {% for app in pipeline.candidates %}
+            {% elif tab == 'applied' or tab == 'reviewed' %}
+            {% for app in tab_results %}
             <div class="card mb-16" style="display:flex; flex-wrap:wrap; gap:16px; padding:24px;">
                 <div class="avatar avatar-md avatar-orange">{{ app.driver.initials }}</div>
                 <div style="flex:1;">
@@ -92,7 +104,7 @@
                             <div class="text-xs text-muted mb-2">
                                 {% if msg.sender_is_company %}You{% else %}{{ app.driver.user.get_full_name }}{% endif                 %} - {{ msg.created_at|date:"M d, g:i a" }}
                             </div>
-                            <div class="text-sm">{{ msg.content }}</div>
+                            <div class="text-sm">{{ msg.content|urlize }}</div>
                         </div>
                         {% endfor %}
                     </div>
@@ -122,8 +134,7 @@
                     </div>
 
                     <!-- Ask Question Modal -->
-                    <div id="ask-question-modal-{{ app.pk }}" class="modal"
-                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                    <div id="ask-question-modal-{{ app.pk }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
                         <div class="modal-content card"
                             style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
                             <h3 class="mb-16">Message {{ app.driver.user.get_full_name }}</h3>
@@ -145,8 +156,7 @@
                     </div>
 
                     <!-- Request Credentials Modal -->
-                    <div id="request-credentials-modal-{{ app.pk }}" class="modal"
-                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                    <div id="request-credentials-modal-{{ app.pk }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
                         <div class="modal-content card"
                             style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
                             <h3 class="mb-16">Request Credentials from {{ app.driver.user.get_full_name }}</h3>
@@ -203,7 +213,7 @@
                             <div class="text-xs text-muted mb-2">
                                 {% if msg.sender_is_company %}You{% else %}{{ app.driver.user.get_full_name }}{% endif                 %} - {{ msg.created_at|date:"M d, g:i a" }}
                             </div>
-                            <div class="text-sm">{{ msg.content }}</div>
+                            <div class="text-sm">{{ msg.content|urlize }}</div>
                         </div>
                         {% endfor %}
                     </div>
@@ -227,8 +237,7 @@
                     </div>
 
                     <!-- Ask Question Modal -->
-                    <div id="ask-question-modal-{{ app.pk }}" class="modal"
-                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                    <div id="ask-question-modal-{{ app.pk }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
                         <div class="modal-content card"
                             style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
                             <h3 class="mb-16">Message {{ app.driver.user.get_full_name }}</h3>
@@ -249,8 +258,7 @@
                     </div>
 
                     <!-- Request Credentials Modal -->
-                    <div id="request-credentials-modal-{{ app.pk }}" class="modal"
-                        style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+                    <div id="request-credentials-modal-{{ app.pk }}" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
                         <div class="modal-content card"
                             style="background:var(--surface); margin:15% auto; padding:24px; max-width:500px; border-radius:8px;">
                             <h3 class="mb-16">Request Credentials from {{ app.driver.user.get_full_name }}</h3>

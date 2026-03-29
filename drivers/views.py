@@ -107,6 +107,20 @@ def driver_profile(request):
                 if verdict == 'approved':
                     messages.success(request, f'Access granted to {access_req.dispatcher.company_name}.')
                     send_access_granted_mail(profile, access_req.dispatcher)
+                    
+                    # Auto-generate a chat message
+                    from jobs.models import JobApplication, ApplicationMessage
+                    
+                    cred_name = dict(Credential.TYPE_CHOICES).get(access_req.credential_type, "credential")
+                    application = JobApplication.objects.filter(driver=profile, job__company=access_req.dispatcher).order_by('-created_at').first()
+                    
+                    if application:
+                        doc_url = request.build_absolute_uri(reverse('companies:view_driver_documents', args=[profile.id]))
+                        ApplicationMessage.objects.create(
+                            application=application,
+                            sender_is_company=False,
+                            content=f"I have approved your request to view my {cred_name}. You can view my documents here: {doc_url}"
+                        )
                 else:
                     messages.success(request, 'Access request rejected.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')

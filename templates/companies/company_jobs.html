@@ -27,12 +27,17 @@
                     <span class="badge badge-gray">{{ job.get_employment_type_display }}</span>
                     {% if job.is_urgent %}<span class="badge badge-red">🔴 Urgent</span>{% endif %}
                     {% if job.status == 'active' %}<span class="badge badge-green">Active</span>
-                    {% elif job.status == 'draft' %}<span class="badge badge-gray">Draft</span>
+                    {% elif job.status == 'draft' %}
+                        <span class="badge badge-gray">Draft</span>
+                        <form method="post" action="{% url 'companies:publish_job' job.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-xs" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; margin-left: 4px;">Publish Now</button>
+                        </form>
                     {% elif job.status == 'paused' %}<span class="badge badge-amber">Paused</span>
                     {% elif job.status == 'filled' %}<span class="badge badge-navy">Filled</span>{% endif %}
                 </div>
             </div>
-            <div style="text-align:right;">
+            <div class="job-card-end" style="text-align:right;">
                 <div class="job-card-pay {% if job.category == 'tow_truck' %}tow{% else %}box{% endif %}">{{ job.pay_display }}</div>
                 <div class="text-xs text-hint mt-4">{{ job.application_count }} applicants · {{ job.time_since_posted }}
                 </div>
