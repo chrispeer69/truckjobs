@@ -89,12 +89,16 @@ def driver_profile(request):
                 elif document_file.size > 30 * 1024 * 1024:
                     messages.error(request, 'Document size cannot exceed 30MB.')
                 else:
-                    DriverDocument.objects.create(
-                        driver=profile,
-                        file=document_file,
-                        name=document_name
-                    )
-                    messages.success(request, 'Document uploaded successfully to your vault.')
+                    try:
+                        DriverDocument.objects.create(
+                            driver=profile,
+                            file=document_file,
+                            name=document_name
+                        )
+                        messages.success(request, 'Document uploaded successfully to your vault.')
+                    except Exception as e:
+                        print(f"UPLOAD ERROR (Document): {e}")
+                        messages.error(request, f'Upload failed: {str(e)}')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
 
         elif action == 'handle_access_request':
@@ -139,16 +143,20 @@ def driver_profile(request):
                 if cred_file.size > 30 * 1024 * 1024:
                     messages.error(request, 'Credential file size cannot exceed 30MB.')
                 else:
-                    cred, _ = Credential.objects.get_or_create(
-                        driver=profile,
-                        credential_type=cred_type
-                    )
-                    cred.file = cred_file
-                    cred.status = 'pending'
-                    if expiry:
-                        cred.expiry_date = expiry
-                    cred.save()
-                    messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
+                    try:
+                        cred, _ = Credential.objects.get_or_create(
+                            driver=profile,
+                            credential_type=cred_type
+                        )
+                        cred.file = cred_file
+                        cred.status = 'pending'
+                        if expiry:
+                            cred.expiry_date = expiry
+                        cred.save()
+                        messages.success(request, f'{cred.get_credential_type_display()} uploaded — pending review.')
+                    except Exception as e:
+                        print(f"UPLOAD ERROR (Credential): {e}")
+                        messages.error(request, f'Upload failed: {str(e)}')
             else:
                 messages.warning(request, 'No file selected for upload.')
             return redirect(reverse('drivers:profile') + '?tab=credentials')
