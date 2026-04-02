@@ -196,11 +196,27 @@ h5 {
   gap: 0;
 }
 
-.navbar-logo .logo-driving {
+/* Global Logo Styles */
+.logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+}
+
+.logo-driving {
+  color: #D85A30; /* var(--brand) fallback */
+}
+
+.logo-jobs {
+  color: #1A1A18; /* var(--text) fallback */
+}
+
+.navbar-logo .logo-driving,
+.footer-logo .logo-driving {
   color: var(--brand);
 }
 
-.navbar-logo .logo-jobs {
+.navbar-logo .logo-jobs,
+.footer-logo .logo-jobs {
   color: var(--text);
 }
 
