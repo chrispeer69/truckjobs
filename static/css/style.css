@@ -198,26 +198,29 @@ h5 {
 
 /* Global Logo Styles */
 .logo-text {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
 }
 
 .logo-driving {
-  color: #D85A30; /* var(--brand) fallback */
+  color: #D85A30 !important; /* Brand Orange */
 }
 
 .logo-jobs {
-  color: #1A1A18; /* var(--text) fallback */
+  color: #1A1A18 !important; /* Brand Black/Dark Gray */
 }
 
 .navbar-logo .logo-driving,
-.footer-logo .logo-driving {
-  color: var(--brand);
+.footer-logo .logo-driving,
+.logo-text .logo-driving {
+  color: var(--brand) !important;
 }
 
 .navbar-logo .logo-jobs,
-.footer-logo .logo-jobs {
-  color: var(--text);
+.footer-logo .logo-jobs,
+.logo-text .logo-jobs {
+  color: var(--text) !important;
 }
 
 .navbar-nav {
@@ -484,6 +487,43 @@ h5 {
 .badge-gray {
   background: var(--surface2);
   color: var(--muted);
+}
+
+/* Feature Pills (Who it's for? section) */
+.feature-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease;
+}
+
+.feature-pill:hover {
+  transform: translateY(-2px);
+}
+
+.pill-green {
+  background: #E8F5E9; /* Light Green */
+  color: #2E7D32; /* Dark Green */
+}
+
+.pill-blue {
+  background: #E3F2FD; /* Light Blue */
+  color: #1565C0; /* Dark Blue */
+}
+
+.pill-orange {
+  background: #FFF3E0; /* Light Orange */
+  color: #E65100; /* Dark Orange/Brown */
+}
+
+.pill-navy {
+  background: #E8EAF6; /* Light Navy */
+  color: #1A237E; /* Dark Navy */
 }
 
 /* ─── Tags (rounded border pills) ─── */
